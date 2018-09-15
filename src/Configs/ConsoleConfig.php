@@ -115,7 +115,7 @@ class ConsoleConfig extends InjectableConfig
             return new CallableSequence($item);
         }
 
-        if (isset($item['command'])) {
+        if (is_array($item) && isset($item['command'])) {
             return new CommandSequence(
                 $item['command'],
                 $item['options'] ?? [],
@@ -124,7 +124,7 @@ class ConsoleConfig extends InjectableConfig
             );
         }
 
-        if (isset($item['invoke'])) {
+        if (is_array($item) && isset($item['invoke'])) {
             return new CallableSequence(
                 $item['invoke'],
                 $item['parameters'] ?? [],
