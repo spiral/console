@@ -124,9 +124,9 @@ class ConsoleConfig extends InjectableConfig
             );
         }
 
-        if (isset($item['call'])) {
+        if (isset($item['invoke'])) {
             return new CallableSequence(
-                $item['call'],
+                $item['invoke'],
                 $item['parameters'] ?? [],
                 $item['header'] ?? '',
                 $item['footer'] ?? ''

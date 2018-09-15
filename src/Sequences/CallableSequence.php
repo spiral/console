@@ -24,13 +24,13 @@ final class CallableSequence extends AbstractSequence
     private $parameters = [];
 
     /**
-     * @param string $function
-     * @param array  $parameters
-     * @param string $header
-     * @param string $footer
+     * @param callable $function
+     * @param array    $parameters
+     * @param string   $header
+     * @param string   $footer
      */
     public function __construct(
-        string $function,
+        $function,
         array $parameters = [],
         string $header = '',
         string $footer = ''
@@ -47,7 +47,7 @@ final class CallableSequence extends AbstractSequence
     public function execute(ContainerInterface $container, OutputInterface $output)
     {
         $function = $this->function;
-        if (is_string($function) && strpos($function, ':')) {
+        if (is_string($function) && strpos($function, ':') !== false) {
             $function = explode(':', str_replace('::', ':', $function));
         }
 
@@ -55,15 +55,19 @@ final class CallableSequence extends AbstractSequence
             $function[0] = $container->get($function[0]);
         }
 
-        if (is_array($function)) {
-            $reflection = new \ReflectionMethod($function[0], $function[1]);
-        } else {
-            $reflection = new \ReflectionFunction($function);
-        }
-
         /** @var ResolverInterface $resolver */
         $resolver = $container->get(ResolverInterface::class);
 
+        if (is_array($function)) {
+            $reflection = new \ReflectionMethod($function[0], $function[1]);
+            $reflection->invokeArgs($function[0], $resolver->resolveArguments($reflection, [
+                'output' => $output
+            ]));
+
+            return;
+        }
+
+        $reflection = new \ReflectionFunction($function);
         $reflection->invokeArgs($resolver->resolveArguments($reflection, [
             'output' => $output
         ]));

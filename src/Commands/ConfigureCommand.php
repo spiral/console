@@ -29,7 +29,7 @@ class ConfigureCommand extends Command
             $sequence->writeHeader($this->output);
 
             try {
-                $sequence->execute($container);
+                $sequence->execute($container, $this->output);
                 $sequence->whiteFooter($this->output);
             } catch (\Throwable $e) {
                 $this->sprintf("<error>%s</error>\n", $e);

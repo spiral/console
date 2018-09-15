@@ -25,17 +25,15 @@ class UpdateCommand extends Command
     {
         $this->writeln("<info>Updating project state:</info>\n");
 
-        foreach ($config->configureSequence() as $sequence) {
+        foreach ($config->updateSequence() as $sequence) {
             $sequence->writeHeader($this->output);
 
             try {
-                $sequence->execute($container);
+                $sequence->execute($container, $this->output);
                 $sequence->whiteFooter($this->output);
             } catch (\Throwable $e) {
                 $this->sprintf("<error>%s</error>\n", $e);
             }
-
-            $sequence->whiteFooter($this->output);
 
             $this->writeln("");
         }
