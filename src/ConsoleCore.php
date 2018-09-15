@@ -10,11 +10,14 @@ namespace Spiral\Console;
 
 use Psr\Container\ContainerInterface;
 use Spiral\Console\Configs\ConsoleConfig;
+use Spiral\Core\ContainerScope;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ConsoleCore
@@ -50,6 +53,24 @@ class ConsoleCore
     }
 
     /**
+     * Run console application.
+     *
+     * @param InputInterface|null  $input
+     * @param OutputInterface|null $output
+     *
+     * @throws \Throwable
+     */
+    public function start(InputInterface $input = null, OutputInterface $output = null)
+    {
+        ContainerScope::runScope($this->container, function () use ($input, $output) {
+            $this->getApplication()->run(
+                $input ?? new ArgvInput(),
+                $output ?? new ConsoleOutput()
+            );
+        });
+    }
+
+    /**
      * Run selected command.
      *
      * @param string               $command
@@ -57,7 +78,7 @@ class ConsoleCore
      * @param OutputInterface|null $output
      * @return CommandOutput
      *
-     * @throws \Exception
+     * @throws \Throwable
      * @throws CommandNotFoundException
      */
     public function run(
@@ -70,15 +91,14 @@ class ConsoleCore
         }
         $output = $output ?? new BufferedOutput();
 
-        // todo: run scoped?
-
         $command = $this->getApplication()->find($command);
-
-        if ($command instanceof Command) {
-            $code = $command->runScoped($this->container, $input, $output);
-        } else {
-            $code = $command->run($input, $output);
-        }
+        $code = ContainerScope::runScope($this->container, function () use (
+            $command,
+            $input,
+            $output
+        ) {
+            return $command->run($input, $output);
+        });
 
         return new CommandOutput($code ?? self::CODE_NONE, $output);
     }

@@ -8,8 +8,9 @@
 
 namespace Spiral\Console;
 
-use Psr\Container\ContainerInterface;
 use Spiral\Console\Traits\HelpersTrait;
+use Spiral\Core\ContainerScope;
+use Spiral\Core\Exceptions\ScopeException;
 use Spiral\Core\ResolverInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,34 +34,6 @@ abstract class Command extends SymfonyCommand
     // getArguments() method.
     const ARGUMENTS = [];
 
-    /** @var ContainerInterface */
-    private $container;
-
-    /**
-     * Run command in container scope and automatically resolve `perform` method arguments.
-     *
-     * @param ContainerInterface $container
-     * @param InputInterface     $input
-     * @param OutputInterface    $output
-     * @return int
-     *
-     * @throws \Exception
-     */
-    public function runScoped(
-        ContainerInterface $container,
-        InputInterface $input,
-        OutputInterface $output
-    ) {
-        try {
-            list($this->container, $this->input, $this->output) = [$container, $input, $output];
-
-            return parent::run($input, $output);
-
-        } finally {
-            list($this->container, $this->input, $this->output) = [null, null, null];
-        }
-    }
-
     /**
      * {@inheritdoc}
      *
@@ -68,17 +41,28 @@ abstract class Command extends SymfonyCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $container = ContainerScope::getContainer();
+        if (empty($container)) {
+            throw new ScopeException("Unable to run SpiralCommand outside of IoC scope.");
+        }
+
         $reflection = new \ReflectionMethod($this, 'perform');
         $reflection->setAccessible(true);
 
         /** @var ResolverInterface $resolver */
-        $resolver = $this->container->get(ResolverInterface::class);
+        $resolver = $container->get(ResolverInterface::class);
 
-        //Executing perform method with method injection
-        return $reflection->invokeArgs($this, $resolver->resolveArguments(
-            $reflection,
-            compact('input', 'output')
-        ));
+        try {
+            list($this->input, $this->output) = [$input, $output];
+
+            //Executing perform method with method injection
+            return $reflection->invokeArgs($this, $resolver->resolveArguments(
+                $reflection,
+                compact('input', 'output')
+            ));
+        } finally {
+            list($this->input, $this->output) = [null, null];
+        }
     }
 
     /**

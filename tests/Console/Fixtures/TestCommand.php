@@ -14,7 +14,8 @@ use Spiral\Core\Container\SingletonInterface;
 
 class TestCommand extends Command implements SingletonInterface
 {
-    const NAME = 'test';
+    const NAME        = 'test';
+    const DESCRIPTION = 'Test Command';
 
     private $count = 0;
 

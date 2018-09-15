@@ -8,6 +8,8 @@
 
 namespace Spiral\Console\Tests;
 
+use Symfony\Component\Console\Output\BufferedOutput;
+
 class CoreTest extends BaseTest
 {
     public function testWelcome()
@@ -24,11 +26,15 @@ class CoreTest extends BaseTest
         );
     }
 
-//    public function testList()
-//    {
-//        $core = $this->getCore();
-//        dump(
-//            $core->run(null)->getOutput()->fetch()
-//        );
-//    }
+    public function testStart()
+    {
+        $core = $this->getCore();
+
+        $output = new BufferedOutput();
+        $core->start(null, $output);
+
+        $this->assertContains("Spiral Framework", $output->fetch());
+        $this->assertContains("console:reload", $output->fetch());
+        $this->assertContains("Test Command", $output->fetch());
+    }
 }
