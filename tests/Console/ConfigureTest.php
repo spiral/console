@@ -53,6 +53,19 @@ exception
 All done!"), trim(str_replace(["\n", "\r", "  "], ' ', $result)));
     }
 
+    public function testReload()
+    {
+        $core = $this->getCore();
+        $this->container->bind(ConsoleCore::class, $core);
+
+        $result = $core->run('console:reload')->getOutput()->fetch();
+
+        $this->assertSame(
+            "Console commands re-indexed, 8 commands found.",
+            $result
+        );
+    }
+
     public function do(OutputInterface $output)
     {
         $output->write("OK");
