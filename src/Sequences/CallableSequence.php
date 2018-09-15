@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Invokes service method as part of the sequence.
  */
-class CallableSequence extends AbstractSequence
+final class CallableSequence extends AbstractSequence
 {
     /** @var string */
     private $function;

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Executes command as part of the sequence.
  */
-class CommandSequence extends AbstractSequence
+final class CommandSequence extends AbstractSequence
 {
     /** @var string */
     private $command;

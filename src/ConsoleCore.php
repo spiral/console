@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ConsoleCore
+final class ConsoleCore
 {
     // Undefined response code for command (errors). See below.
     const CODE_NONE = 102;

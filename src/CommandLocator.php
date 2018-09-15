@@ -17,7 +17,7 @@ use Symfony\Component\Console\Command\Command as SymfonyCommand;
 /**
  * Automatically locates available commands using ClassLocator.
  */
-class CommandLocator implements LocatorInterface
+final class CommandLocator implements LocatorInterface
 {
     // Memory section to store commands cache
     const MEMORY = 'commands';
