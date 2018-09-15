@@ -26,7 +26,8 @@ class UpdateTest extends BaseTest
             ['command' => 'helper', 'options' => ['helper' => 'writeln'], 'footer' => 'Good!'],
             ['invoke' => [self::class, 'do']],
             ['invoke' => self::class . '::do'],
-            ['invoke' => 'Spiral\Console\Tests\ok']
+            ['invoke' => 'Spiral\Console\Tests\ok'],
+            ['invoke' => self::class . '::err'],
         ]
     ];
 
@@ -47,11 +48,18 @@ Good!
 OK
 OK
 OK2
+exception
+
 All done!"), trim(str_replace(["\n", "\r", "  "], ' ', $result)));
     }
 
     public function do(OutputInterface $output)
     {
         $output->write("OK");
+    }
+
+    public function err(OutputInterface $output)
+    {
+        throw new ShortException();
     }
 }

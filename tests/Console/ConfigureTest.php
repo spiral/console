@@ -26,7 +26,8 @@ class ConfigureTest extends BaseTest
             ['command' => 'helper', 'options' => ['helper' => 'writeln'], 'footer' => 'Good!'],
             ['invoke' => [self::class, 'do']],
             ['invoke' => self::class . '::do'],
-            ['invoke' => 'Spiral\Console\Tests\ok']
+            ['invoke' => 'Spiral\Console\Tests\ok'],
+            ['invoke' => self::class . '::err'],
         ]
     ];
 
@@ -47,6 +48,8 @@ Good!
 OK
 OK
 OK2
+exception
+
 All done!"), trim(str_replace(["\n", "\r", "  "], ' ', $result)));
     }
 
@@ -54,9 +57,22 @@ All done!"), trim(str_replace(["\n", "\r", "  "], ' ', $result)));
     {
         $output->write("OK");
     }
+
+    public function err(OutputInterface $output)
+    {
+        throw new ShortException();
+    }
 }
 
 function ok(OutputInterface $output)
 {
     $output->write("OK2");
+}
+
+class ShortException extends \Exception
+{
+    public function __toString()
+    {
+        return "exception";
+    }
 }
