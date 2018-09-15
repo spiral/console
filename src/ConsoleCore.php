@@ -60,12 +60,17 @@ class ConsoleCore
      * @throws \Exception
      * @throws CommandNotFoundException
      */
-    public function run(string $command, $input = [], OutputInterface $output = null): CommandOutput
-    {
+    public function run(
+        ?string $command,
+        $input = [],
+        OutputInterface $output = null
+    ): CommandOutput {
         if (is_array($input)) {
             $input = new ArrayInput($input + compact('command'));
         }
         $output = $output ?? new BufferedOutput();
+
+        // todo: run scoped?
 
         $command = $this->getApplication()->find($command);
 
