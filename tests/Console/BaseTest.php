@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Spiral\Console\CommandLocator;
 use Spiral\Console\Configs\ConsoleConfig;
 use Spiral\Console\ConsoleCore;
+use Spiral\Console\Tests\Fixtures\User\UserCommand;
 use Spiral\Core\BootloadManager;
 use Spiral\Core\Container;
 use Spiral\Core\MemoryInterface;
@@ -30,7 +31,9 @@ abstract class BaseTest extends TestCase
 
     const CONFIG = [
         'locateCommands' => false,
-        'commands'       => []
+        'commands'       => [
+            UserCommand::class
+        ]
     ];
 
     public function setUp()

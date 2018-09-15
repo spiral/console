@@ -55,13 +55,14 @@ class ConsoleCore
      *
      * @param InputInterface|null  $input
      * @param OutputInterface|null $output
+     * @return int
      *
      * @throws \Throwable
      */
-    public function start(InputInterface $input = null, OutputInterface $output = null)
+    public function start(InputInterface $input = null, OutputInterface $output = null): int
     {
-        ContainerScope::runScope($this->container, function () use ($input, $output) {
-            $this->getApplication()->run($input, $output);
+        return ContainerScope::runScope($this->container, function () use ($input, $output) {
+            return $this->getApplication()->run($input, $output);
         });
     }
 

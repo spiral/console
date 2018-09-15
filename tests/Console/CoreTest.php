@@ -39,5 +39,7 @@ class CoreTest extends BaseTest
         $this->assertContains("Spiral Framework", $output);
         $this->assertContains("console:reload", $output);
         $this->assertContains("Test Command", $output);
+
+        $this->assertContains("test:user", $output);
     }
 }
