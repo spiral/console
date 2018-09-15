@@ -8,7 +8,6 @@
 
 namespace Spiral\Console\Tests;
 
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class CoreTest extends BaseTest
@@ -32,12 +31,12 @@ class CoreTest extends BaseTest
         $core = $this->getCore();
 
         $output = new BufferedOutput();
-        $core->start(new ArrayInput([]), $output);
 
-        $this->assertContains("Spiral Framework", $output->fetch());
-        $this->assertContains("console:reload", $output->fetch());
-        $this->assertContains("Test Command", $output->fetch());
+        $core->start(null, $output);
+        $output = $output->fetch();
 
-        dump($output->fetch());
+        $this->assertContains("Spiral Framework", $output);
+        $this->assertContains("console:reload", $output);
+        $this->assertContains("Test Command", $output);
     }
 }

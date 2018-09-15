@@ -113,6 +113,7 @@ class ConsoleCore
 
         $this->application = new Application($this->config->getName(), $this->config->getVersion());
         $this->application->setCatchExceptions(false);
+        $this->application->setAutoExit(false);
 
         foreach ($this->locator->locateCommands() as $command) {
             $this->application->add($command);
