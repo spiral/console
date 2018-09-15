@@ -8,6 +8,10 @@
 
 namespace Spiral\Console\Configs;
 
+use Spiral\Console\Exceptions\ConfigException;
+use Spiral\Console\SequenceInterface;
+use Spiral\Console\Sequences\CallableSequence;
+use Spiral\Console\Sequences\CommandSequence;
 use Spiral\Core\InjectableConfig;
 
 class ConsoleConfig extends InjectableConfig
@@ -20,6 +24,8 @@ class ConsoleConfig extends InjectableConfig
     protected $config = [
         'locateCommands' => true,
         'commands'       => [],
+        'configure'      => [],
+        'update'         => []
     ];
 
     /**
@@ -63,5 +69,73 @@ class ConsoleConfig extends InjectableConfig
         return $this->config['commands'];
     }
 
-    // todo: sequences?
+    /**
+     * Get list of configure sequences.
+     *
+     * @return \Generator|SequenceInterface[]
+     *
+     * @throws ConfigException
+     */
+    public function configureSequence(): \Generator
+    {
+        $sequence = $this->config['configure'] ?? $this->config['configureSequence'] ?? [];
+        foreach ($sequence as $item) {
+            yield $this->parseSequence($item);
+        }
+    }
+
+    /**
+     * Get list of all update sequences.
+     *
+     * @return \Generator|SequenceInterface[]
+     *
+     * @throws ConfigException
+     */
+    public function updateSequence(): \Generator
+    {
+        $sequence = $this->config['update'] ?? $this->config['updateSequence'] ?? [];
+        foreach ($sequence as $item) {
+            yield $this->parseSequence($item);
+        }
+    }
+
+    /**
+     * @param mixed $item
+     * @return SequenceInterface
+     *
+     * @throws ConfigException
+     */
+    protected function parseSequence($item): SequenceInterface
+    {
+        if ($item instanceof SequenceInterface) {
+            return $item;
+        }
+
+        if (is_string($item)) {
+            return new CallableSequence($item);
+        }
+
+        if (isset($item['command'])) {
+            return new CommandSequence(
+                $item['command'],
+                $item['options'] ?? [],
+                $item['header'] ?? '',
+                $item['footer'] ?? ''
+            );
+        }
+
+        if (isset($item['call'])) {
+            return new CallableSequence(
+                $item['call'],
+                $item['parameters'] ?? [],
+                $item['header'] ?? '',
+                $item['footer'] ?? ''
+            );
+        }
+
+        throw new ConfigException(sprintf(
+            "Unable to parse sequence `%s`.",
+            json_encode($item)
+        ));
+    }
 }
