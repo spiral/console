@@ -23,5 +23,10 @@ class OptionsTest extends BaseTest
             "hello",
             $core->run('optional', ['-o' => true, 'arg' => 'hello'])->getOutput()->fetch()
         );
+
+        $this->assertSame(
+            0,
+            $core->run('optional', ['-o' => true, 'arg' => 'hello'])->getCode()
+        );
     }
 }
