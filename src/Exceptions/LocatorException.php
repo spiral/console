@@ -6,9 +6,9 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
-namespace Spiral\Console;
+namespace Spiral\Console\Exceptions;
 
-class NullLocator implements LocatorInterface
+class LocatorException extends ConsoleException
 {
 
 }
