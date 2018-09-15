@@ -14,15 +14,6 @@ use Spiral\Console\Sequences\CallableSequence;
 
 class ConfigTest extends TestCase
 {
-    public function testLocateCommands()
-    {
-        $config = new ConsoleConfig();
-        $this->assertFalse($config->locateCommands());
-
-        $config = new ConsoleConfig(['locateCommands' => true]);
-        $this->assertTrue($config->locateCommands());
-    }
-
     /**
      * @expectedException \Spiral\Console\Exceptions\ConfigException
      */

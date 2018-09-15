@@ -22,10 +22,9 @@ class ConsoleConfig extends InjectableConfig
      * @var array
      */
     protected $config = [
-        'locateCommands' => true,
-        'commands'       => [],
-        'configure'      => [],
-        'update'         => []
+        'commands'  => [],
+        'configure' => [],
+        'update'    => []
     ];
 
     /**
@@ -42,16 +41,6 @@ class ConsoleConfig extends InjectableConfig
     public function getVersion(): string
     {
         return "UNKNOWN";
-    }
-
-    /**
-     * Indication that ConsoleDispatcher must locate commands automatically.
-     *
-     * @return bool
-     */
-    public function locateCommands(): bool
-    {
-        return !empty($this->config['locateCommands']);
     }
 
     /**
