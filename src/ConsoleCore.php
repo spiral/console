@@ -13,11 +13,9 @@ use Spiral\Console\Configs\ConsoleConfig;
 use Spiral\Core\ContainerScope;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ConsoleCore
@@ -63,10 +61,7 @@ class ConsoleCore
     public function start(InputInterface $input = null, OutputInterface $output = null)
     {
         ContainerScope::runScope($this->container, function () use ($input, $output) {
-            $this->getApplication()->run(
-                $input ?? new ArgvInput(),
-                $output ?? new ConsoleOutput()
-            );
+            $this->getApplication()->run($input, $output);
         });
     }
 

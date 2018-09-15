@@ -25,7 +25,7 @@ abstract class BaseTest extends TestCase
 
     const TOKENIZER_CONFIG = [
         'directories' => [__DIR__ . '/Fixtures/'],
-        'exclude'     => [],
+        'exclude'     => ['User'],
     ];
 
     const CONFIG = [
