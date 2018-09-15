@@ -26,7 +26,7 @@ class UpdateTest extends BaseTest
             ['command' => 'helper', 'options' => ['helper' => 'writeln'], 'footer' => 'Good!'],
             ['invoke' => [self::class, 'do']],
             ['invoke' => self::class . '::do'],
-            ['invoke' => 'Spiral\Console\Tests\ok'],
+            'Spiral\Console\Tests\ok',
             ['invoke' => self::class . '::err'],
         ]
     ];

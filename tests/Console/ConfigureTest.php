@@ -20,13 +20,12 @@ class ConfigureTest extends BaseTest
 
     const CONFIG = [
         'locateCommands' => false,
-        'commands'       => [],
         'configure'      => [
             ['command' => 'test', 'header' => 'Test Command'],
             ['command' => 'helper', 'options' => ['helper' => 'writeln'], 'footer' => 'Good!'],
             ['invoke' => [self::class, 'do']],
             ['invoke' => self::class . '::do'],
-            ['invoke' => 'Spiral\Console\Tests\ok'],
+            'Spiral\Console\Tests\ok',
             ['invoke' => self::class . '::err'],
         ]
     ];
