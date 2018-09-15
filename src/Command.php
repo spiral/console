@@ -52,7 +52,7 @@ abstract class Command extends SymfonyCommand
         OutputInterface $output
     ) {
         try {
-            list($this->input, $this->output, $this->container) = [$container, $input, $output];
+            list($this->container, $this->input, $this->output) = [$container, $input, $output];
 
             return parent::run($input, $output);
 

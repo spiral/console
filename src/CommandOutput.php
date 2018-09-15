@@ -8,6 +8,7 @@
 
 namespace Spiral\Console;
 
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class CommandOutput
@@ -37,7 +38,7 @@ final class CommandOutput
     }
 
     /**
-     * @return OutputInterface
+     * @return OutputInterface|BufferedOutput
      */
     public function getOutput(): OutputInterface
     {
