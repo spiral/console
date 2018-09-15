@@ -1,7 +1,7 @@
 {
   "name": "spiral/console",
   "type": "library",
-  "description": "Console Core, Command Auto-Location",
+  "description": "Console Core, Command Auto-Location, Command Sequencing",
   "license": "MIT",
   "authors": [
     {

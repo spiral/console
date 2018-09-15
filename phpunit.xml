@@ -13,7 +13,7 @@
 >
 
     <testsuites>
-        <testsuite name="Console Core, Command Auto-Location">
+        <testsuite name="Console Core, Command Auto-Location, Command Sequencing">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
