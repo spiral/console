@@ -121,7 +121,7 @@ class ConsoleCore
         // Register user defined commands
         if (!$this->locator instanceof StaticLocator) {
             $static = new StaticLocator($this->config, $this->container);
-            foreach ($static as $command) {
+            foreach ($static->locateCommands() as $command) {
                 $this->application->add($command);
             }
         }
