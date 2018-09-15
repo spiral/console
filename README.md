@@ -1,4 +1,4 @@
-Console Core, Command Auto-Location, Command Sequencing
+Console Core, Auto-Discovery, Command Sequencing
 ================================
 [![Latest Stable Version](https://poser.pugx.org/spiral/console/version)](https://packagist.org/packages/spiral/console)
 [![Build Status](https://travis-ci.org/spiral/console.svg?branch=master)](https://travis-ci.org/spiral/console)
