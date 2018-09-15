@@ -28,7 +28,6 @@ class ConfigTest extends TestCase
         iterator_to_array($config->updateSequence());
     }
 
-
     public function testForcedSequence()
     {
         $config = new ConsoleConfig([
