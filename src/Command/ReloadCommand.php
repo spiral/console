@@ -27,7 +27,7 @@ class ReloadCommand extends Command
         $locator->reset();
 
         $this->sprintf(
-            "Console commands re-indexed, <comment>%s</comment> commands found.",
+            "Console commands re-indexed, <comment>%s</comment> commands found.\n",
             count($locator->locateCommands())
         );
     }
