@@ -10,15 +10,15 @@ namespace Spiral\Console\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Spiral\Console\CommandLocator;
-use Spiral\Console\Configs\ConsoleConfig;
+use Spiral\Console\Config\ConsoleConfig;
 use Spiral\Console\ConsoleCore;
 use Spiral\Console\Tests\Fixtures\User\UserCommand;
 use Spiral\Core\BootloadManager;
 use Spiral\Core\Container;
 use Spiral\Core\MemoryInterface;
 use Spiral\Core\NullMemory;
-use Spiral\Tokenizer\Bootloaders\TokenizerBootloader;
-use Spiral\Tokenizer\Configs\TokenizerConfig;
+use Spiral\Tokenizer\Bootloader\TokenizerBootloader;
+use Spiral\Tokenizer\Config\TokenizerConfig;
 
 abstract class BaseTest extends TestCase
 {

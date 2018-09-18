@@ -6,7 +6,7 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
-namespace Spiral\Console\Commands;
+namespace Spiral\Console\Command;
 
 use Spiral\Console\Command;
 use Spiral\Console\CommandLocator;

@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class UpdateTest extends BaseTest
 {
     const TOKENIZER_CONFIG = [
-        'directories' => [__DIR__ . '/../../src/Commands', __DIR__ . '/Fixtures/'],
+        'directories' => [__DIR__ . '/../../src/Command', __DIR__ . '/Fixtures/'],
         'exclude'     => []
     ];
 

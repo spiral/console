@@ -9,7 +9,7 @@
 namespace Spiral\Console;
 
 use Psr\Container\ContainerInterface;
-use Spiral\Console\Configs\ConsoleConfig;
+use Spiral\Console\Config\ConsoleConfig;
 
 final class StaticLocator implements LocatorInterface
 {

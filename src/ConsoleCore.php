@@ -9,7 +9,7 @@
 namespace Spiral\Console;
 
 use Psr\Container\ContainerInterface;
-use Spiral\Console\Configs\ConsoleConfig;
+use Spiral\Console\Config\ConsoleConfig;
 use Spiral\Core\ContainerScope;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -104,7 +104,7 @@ final class ConsoleCore
      *
      * @return Application
      *
-     * @throws \Spiral\Console\Exceptions\LocatorException
+     * @throws \Spiral\Console\Exception\LocatorException
      */
     public function getApplication(): Application
     {

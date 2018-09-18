@@ -10,7 +10,7 @@ namespace Spiral\Console;
 
 use Spiral\Console\Traits\HelpersTrait;
 use Spiral\Core\ContainerScope;
-use Spiral\Core\Exceptions\ScopeException;
+use Spiral\Core\Exception\ScopeException;
 use Spiral\Core\ResolverInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;

@@ -6,12 +6,12 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
-namespace Spiral\Console\Configs;
+namespace Spiral\Console\Config;
 
-use Spiral\Console\Exceptions\ConfigException;
+use Spiral\Console\Exception\ConfigException;
 use Spiral\Console\SequenceInterface;
-use Spiral\Console\Sequences\CallableSequence;
-use Spiral\Console\Sequences\CommandSequence;
+use Spiral\Console\Sequence\CallableSequence;
+use Spiral\Console\Sequence\CommandSequence;
 use Spiral\Core\InjectableConfig;
 
 class ConsoleConfig extends InjectableConfig

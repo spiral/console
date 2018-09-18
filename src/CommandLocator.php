@@ -9,7 +9,7 @@
 namespace Spiral\Console;
 
 use Psr\Container\ContainerInterface;
-use Spiral\Console\Commands\ReloadCommand;
+use Spiral\Console\Command\ReloadCommand;
 use Spiral\Core\MemoryInterface;
 use Spiral\Tokenizer\ClassesInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;

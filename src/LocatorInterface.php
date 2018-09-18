@@ -15,7 +15,7 @@ interface LocatorInterface
      *
      * @return \Symfony\Component\Console\Command\Command[]
      *
-     * @throws \Spiral\Console\Exceptions\LocatorException
+     * @throws \Spiral\Console\Exception\LocatorException
      */
     public function locateCommands(): array;
 }

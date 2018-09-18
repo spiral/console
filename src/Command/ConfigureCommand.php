@@ -6,16 +6,16 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
-namespace Spiral\Console\Commands;
+namespace Spiral\Console\Command;
 
 use Psr\Container\ContainerInterface;
 use Spiral\Console\Command;
-use Spiral\Console\Configs\ConsoleConfig;
+use Spiral\Console\Config\ConsoleConfig;
 
-class UpdateCommand extends Command
+class ConfigureCommand extends Command
 {
-    const NAME        = 'update';
-    const DESCRIPTION = 'Update project state';
+    const NAME        = 'configure';
+    const DESCRIPTION = 'Configure project';
 
     /**
      * @param ConsoleConfig      $config
@@ -23,9 +23,9 @@ class UpdateCommand extends Command
      */
     public function perform(ConsoleConfig $config, ContainerInterface $container)
     {
-        $this->writeln("<info>Updating project state:</info>\n");
+        $this->writeln("<info>Configuring project:</info>\n");
 
-        foreach ($config->updateSequence() as $sequence) {
+        foreach ($config->configureSequence() as $sequence) {
             $sequence->writeHeader($this->output);
 
             try {

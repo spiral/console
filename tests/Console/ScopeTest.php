@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 class ScopeTest extends TestCase
 {
     /**
-     * @expectedException \Spiral\Core\Exceptions\ScopeException
+     * @expectedException \Spiral\Core\Exception\ScopeException
      */
     public function testScopeError()
     {

@@ -9,13 +9,13 @@
 namespace Spiral\Console\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Spiral\Console\Configs\ConsoleConfig;
-use Spiral\Console\Sequences\CallableSequence;
+use Spiral\Console\Config\ConsoleConfig;
+use Spiral\Console\Sequence\CallableSequence;
 
 class ConfigTest extends TestCase
 {
     /**
-     * @expectedException \Spiral\Console\Exceptions\ConfigException
+     * @expectedException \Spiral\Console\Exception\ConfigException
      */
     public function testBadSequence()
     {

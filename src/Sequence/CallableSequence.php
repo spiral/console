@@ -6,7 +6,7 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
-namespace Spiral\Console\Sequences;
+namespace Spiral\Console\Sequence;
 
 use Psr\Container\ContainerInterface;
 use Spiral\Core\ResolverInterface;

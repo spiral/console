@@ -6,7 +6,7 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
-namespace Spiral\Console\Sequences;
+namespace Spiral\Console\Sequence;
 
 use Spiral\Console\SequenceInterface;
 use Symfony\Component\Console\Output\OutputInterface;

@@ -6,9 +6,9 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
-namespace Spiral\Console\Exceptions;
+namespace Spiral\Console\Exception;
 
-class ConsoleException extends \RuntimeException
+class CommandException extends ConsoleException
 {
 
 }
