@@ -60,7 +60,7 @@ All done!"), trim(str_replace(["\n", "\r", "  "], ' ', $result)));
         $result = $core->run('console:reload')->getOutput()->fetch();
 
         $this->assertSame(
-            "Console commands re-indexed, 8 commands found.",
+            "Console commands re-indexed, 8 commands found.\n",
             $result
         );
     }
