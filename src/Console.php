@@ -5,11 +5,13 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\Console;
 
 use Psr\Container\ContainerInterface;
 use Spiral\Console\Config\ConsoleConfig;
+use Spiral\Core\Container;
 use Spiral\Core\ContainerScope;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -18,19 +20,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class ConsoleCore
+final class Console
 {
     // Undefined response code for command (errors). See below.
-    const CODE_NONE = 102;
+    public const CODE_NONE = 102;
 
     /** @var ConsoleConfig */
     private $config;
 
+    /** @var LocatorInterface|null */
+    private $locator;
+
     /** @var ContainerInterface */
     private $container;
-
-    /** @var LocatorInterface */
-    private $locator;
 
     /** @var Application|null */
     private $application = null;
@@ -42,12 +44,12 @@ final class ConsoleCore
      */
     public function __construct(
         ConsoleConfig $config,
-        ContainerInterface $container,
-        LocatorInterface $locator
+        LocatorInterface $locator = null,
+        ContainerInterface $container = null
     ) {
         $this->config = $config;
-        $this->container = $container;
         $this->locator = $locator;
+        $this->container = $container ?? new Container();
     }
 
     /**
@@ -116,16 +118,16 @@ final class ConsoleCore
         $this->application->setCatchExceptions(false);
         $this->application->setAutoExit(false);
 
-        foreach ($this->locator->locateCommands() as $command) {
-            $this->application->add($command);
-        }
-
-        if (!$this->locator instanceof StaticLocator) {
-            // Register user defined commands
-            $static = new StaticLocator($this->config, $this->container);
-            foreach ($static->locateCommands() as $command) {
+        if (!is_null($this->locator)) {
+            foreach ($this->locator->locateCommands() as $command) {
                 $this->application->add($command);
             }
+        }
+
+        // Register user defined commands
+        $static = new StaticLocator($this->config->getCommands(), $this->container);
+        foreach ($static->locateCommands() as $command) {
+            $this->application->add($command);
         }
 
         return $this->application;

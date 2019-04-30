@@ -5,6 +5,7 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\Console;
 
@@ -16,23 +17,26 @@ use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Provides automatic command configuration and access to global container scope.
+ */
 abstract class Command extends SymfonyCommand
 {
     use HelpersTrait;
 
     // Command name.
-    const NAME = '';
+    protected const NAME = '';
 
     //  Short command description.
-    const DESCRIPTION = '';
+    protected const DESCRIPTION = '';
 
     // Command options specified in Symphony format. For more complex definitions redefine
     // getOptions() method.
-    const OPTIONS = [];
+    protected const OPTIONS = [];
 
     // Command arguments specified in Symphony format. For more complex definitions redefine
     // getArguments() method.
-    const ARGUMENTS = [];
+    protected const ARGUMENTS = [];
 
     /**
      * {@inheritdoc}

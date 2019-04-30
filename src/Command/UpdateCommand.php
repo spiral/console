@@ -5,6 +5,7 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\Console\Command;
 
@@ -12,10 +13,10 @@ use Psr\Container\ContainerInterface;
 use Spiral\Console\Command;
 use Spiral\Console\Config\ConsoleConfig;
 
-class UpdateCommand extends Command
+final class UpdateCommand extends Command
 {
-    const NAME        = 'update';
-    const DESCRIPTION = 'Update project state';
+    protected const NAME        = 'update';
+    protected const DESCRIPTION = 'Update project state';
 
     /**
      * @param ConsoleConfig      $config

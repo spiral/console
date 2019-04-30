@@ -5,11 +5,12 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\Console\Sequence;
 
 use Psr\Container\ContainerInterface;
-use Spiral\Console\ConsoleCore;
+use Spiral\Console\Console;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -46,8 +47,8 @@ final class CommandSequence extends AbstractSequence
      */
     public function execute(ContainerInterface $container, OutputInterface $output)
     {
-        /** @var ConsoleCore $console */
-        $console = $container->get(ConsoleCore::class);
+        /** @var Console $console */
+        $console = $container->get(Console::class);
 
         $console->run($this->command, $this->options, $output);
     }

@@ -5,16 +5,17 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\Console\Config;
 
 use Spiral\Console\Exception\ConfigException;
-use Spiral\Console\SequenceInterface;
 use Spiral\Console\Sequence\CallableSequence;
 use Spiral\Console\Sequence\CommandSequence;
+use Spiral\Console\SequenceInterface;
 use Spiral\Core\InjectableConfig;
 
-class ConsoleConfig extends InjectableConfig
+final class ConsoleConfig extends InjectableConfig
 {
     const CONFIG = 'console';
 

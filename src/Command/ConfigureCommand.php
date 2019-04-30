@@ -5,6 +5,7 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\Console\Command;
 
@@ -12,10 +13,10 @@ use Psr\Container\ContainerInterface;
 use Spiral\Console\Command;
 use Spiral\Console\Config\ConsoleConfig;
 
-class ConfigureCommand extends Command
+final class ConfigureCommand extends Command
 {
-    const NAME        = 'configure';
-    const DESCRIPTION = 'Configure project';
+    protected const NAME        = 'configure';
+    protected const DESCRIPTION = 'Configure project';
 
     /**
      * @param ConsoleConfig      $config

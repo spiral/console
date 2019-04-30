@@ -9,16 +9,12 @@
 namespace Spiral\Console\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Spiral\Console\CommandLocator;
 use Spiral\Console\Config\ConsoleConfig;
-use Spiral\Console\ConsoleCore;
+use Spiral\Console\Console;
+use Spiral\Console\LocatorInterface;
+use Spiral\Console\StaticLocator;
 use Spiral\Console\Tests\Fixtures\User\UserCommand;
-use Spiral\Core\BootloadManager;
 use Spiral\Core\Container;
-use Spiral\Core\MemoryInterface;
-use Spiral\Core\NullMemory;
-use Spiral\Tokenizer\Bootloader\TokenizerBootloader;
-use Spiral\Tokenizer\Config\TokenizerConfig;
 
 abstract class BaseTest extends TestCase
 {
@@ -39,27 +35,19 @@ abstract class BaseTest extends TestCase
     public function setUp()
     {
         $this->container = new Container();
-        $this->container->bind(MemoryInterface::class, new NullMemory());
 
-        $bootloder = new BootloadManager($this->container);
-        $bootloder->bootload([TokenizerBootloader::class]);
-
-        $this->container->bind(
-            TokenizerConfig::class,
-            new TokenizerConfig(static::TOKENIZER_CONFIG)
-        );
         $this->container->bind(
             ConsoleConfig::class,
             new ConsoleConfig(static::CONFIG)
         );
     }
 
-    protected function getCore(string $locator = CommandLocator::class): ConsoleCore
+    protected function getCore(LocatorInterface $locator = null): Console
     {
-        return new ConsoleCore(
+        return new Console(
             $this->container->get(ConsoleConfig::class),
-            $this->container,
-            $this->container->get($locator)
+            $locator ?? new StaticLocator([], $this->container),
+            $this->container
         );
     }
 }

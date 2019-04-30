@@ -8,7 +8,11 @@
 
 namespace Spiral\Console\Tests;
 
-use Spiral\Console\ConsoleCore;
+use Spiral\Console\Command\UpdateCommand;
+use Spiral\Console\Console;
+use Spiral\Console\StaticLocator;
+use Spiral\Console\Tests\Fixtures\HelperCommand;
+use Spiral\Console\Tests\Fixtures\TestCommand;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateTest extends BaseTest
@@ -33,8 +37,13 @@ class UpdateTest extends BaseTest
 
     public function testConfigure()
     {
-        $core = $this->getCore();
-        $this->container->bind(ConsoleCore::class, $core);
+        $core = $this->getCore(new StaticLocator([
+            HelperCommand::class,
+            TestCommand::class,
+            UpdateCommand::class
+        ]));
+
+        $this->container->bind(Console::class, $core);
 
         $result = $core->run('update')->getOutput()->fetch();
 

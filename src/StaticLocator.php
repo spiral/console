@@ -5,28 +5,29 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\Console;
 
 use Psr\Container\ContainerInterface;
-use Spiral\Console\Config\ConsoleConfig;
+use Spiral\Core\Container;
 
 final class StaticLocator implements LocatorInterface
 {
-    /** @var ConsoleConfig */
-    private $config;
+    /** @var []string */
+    private $commands;
 
     /** @var ContainerInterface */
-    private $container;
+    private $factory;
 
     /**
-     * @param ConsoleConfig       $config
+     * @param array               $commands
      * @param  ContainerInterface $container
      */
-    public function __construct(ConsoleConfig $config, ContainerInterface $container)
+    public function __construct(array $commands, ContainerInterface $container = null)
     {
-        $this->config = $config;
-        $this->container = $container;
+        $this->commands = $commands;
+        $this->factory = $container ?? new Container();
     }
 
     /**
@@ -35,8 +36,8 @@ final class StaticLocator implements LocatorInterface
     public function locateCommands(): array
     {
         $commands = [];
-        foreach ($this->config->getCommands() as $command) {
-            $commands[] = $this->container->get($command);
+        foreach ($this->commands as $command) {
+            $commands[] = $this->factory->get($command);
         }
 
         return $commands;

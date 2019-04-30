@@ -8,7 +8,12 @@
 
 namespace Spiral\Console\Tests;
 
-use Spiral\Console\ConsoleCore;
+use Spiral\Console\Command\ConfigureCommand;
+use Spiral\Console\Command\ReloadCommand;
+use Spiral\Console\Console;
+use Spiral\Console\StaticLocator;
+use Spiral\Console\Tests\Fixtures\HelperCommand;
+use Spiral\Console\Tests\Fixtures\TestCommand;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ConfigureTest extends BaseTest
@@ -32,8 +37,12 @@ class ConfigureTest extends BaseTest
 
     public function testConfigure()
     {
-        $core = $this->getCore();
-        $this->container->bind(ConsoleCore::class, $core);
+        $core = $this->getCore(new StaticLocator([
+            HelperCommand::class,
+            ConfigureCommand::class,
+            TestCommand::class
+        ]));
+        $this->container->bind(Console::class, $core);
 
         $result = $core->run('configure')->getOutput()->fetch();
 
@@ -50,19 +59,6 @@ OK2
 exception
 
 All done!"), trim(str_replace(["\n", "\r", "  "], ' ', $result)));
-    }
-
-    public function testReload()
-    {
-        $core = $this->getCore();
-        $this->container->bind(ConsoleCore::class, $core);
-
-        $result = $core->run('console:reload')->getOutput()->fetch();
-
-        $this->assertSame(
-            "Console commands re-indexed, 8 commands found.\n",
-            $result
-        );
     }
 
     public function do(OutputInterface $output)

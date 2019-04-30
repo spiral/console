@@ -8,11 +8,16 @@
 
 namespace Spiral\Console\Tests;
 
+use Spiral\Console\StaticLocator;
+use Spiral\Console\Tests\Fixtures\OptionalCommand;
+
 class OptionsTest extends BaseTest
 {
     public function testOptions()
     {
-        $core = $this->getCore();
+        $core = $this->getCore(new StaticLocator([
+            OptionalCommand::class
+        ]));
 
         $this->assertSame(
             "no option",

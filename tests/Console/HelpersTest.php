@@ -8,6 +8,8 @@
 
 namespace Spiral\Console\Tests;
 
+use Spiral\Console\StaticLocator;
+use Spiral\Console\Tests\Fixtures\HelperCommand;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -15,7 +17,9 @@ class HelpersTest extends BaseTest
 {
     public function testVerbose()
     {
-        $core = $this->getCore();
+        $core = $this->getCore(new StaticLocator([
+            HelperCommand::class
+        ]));
 
         $this->assertContains(
             "false",
@@ -38,7 +42,9 @@ class HelpersTest extends BaseTest
 
     public function testSprinf()
     {
-        $core = $this->getCore();
+        $core = $this->getCore(new StaticLocator([
+            HelperCommand::class
+        ]));
 
         $this->assertContains(
             "hello world",
@@ -48,7 +54,9 @@ class HelpersTest extends BaseTest
 
     public function testWriteln()
     {
-        $core = $this->getCore();
+        $core = $this->getCore(new StaticLocator([
+            HelperCommand::class
+        ]));
 
         $this->assertContains(
             "\n",
@@ -58,7 +66,9 @@ class HelpersTest extends BaseTest
 
     public function testTable()
     {
-        $core = $this->getCore();
+        $core = $this->getCore(new StaticLocator([
+            HelperCommand::class
+        ]));
 
         $this->assertContains(
             "id",
