@@ -95,6 +95,10 @@ final class Console
             $input,
             $output
         ) {
+            if ($command instanceof Command) {
+                $command->setContainer($this->container);
+            }
+
             return $command->run($input, $output);
         });
 
