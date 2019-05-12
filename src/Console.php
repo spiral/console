@@ -65,8 +65,6 @@ final class Console
      */
     public function start(InputInterface $input = null, OutputInterface $output = null): int
     {
-        $this->configureIO($input, $output);
-
         return ContainerScope::runScope($this->container, function () use ($input, $output) {
             return $this->run(
                 $input->getFirstArgument() ?? 'list',
@@ -96,6 +94,8 @@ final class Console
             $input = new ArrayInput($input + compact('command'));
         }
         $output = $output ?? new BufferedOutput();
+
+        $this->configureIO($input, $output);
 
         $command = $this->getApplication()->find($command);
         $code = ContainerScope::runScope($this->container, function () use (
