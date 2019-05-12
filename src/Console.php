@@ -5,6 +5,7 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\Console;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\StreamableInputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -63,8 +65,14 @@ final class Console
      */
     public function start(InputInterface $input = null, OutputInterface $output = null): int
     {
+        $this->configureIO($input, $output);
+
         return ContainerScope::runScope($this->container, function () use ($input, $output) {
-            return $this->getApplication()->run($input, $output);
+            return $this->run(
+                $input->getFirstArgument() ?? 'list',
+                $input,
+                $output
+            )->getCode();
         });
     }
 
@@ -135,5 +143,81 @@ final class Console
         }
 
         return $this->application;
+    }
+
+    /**
+     * Extracted in order to manage command lifecycle.
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     * @see Application::configureIO()
+     */
+    protected function configureIO(InputInterface $input, OutputInterface $output)
+    {
+        if (true === $input->hasParameterOption(['--ansi'], true)) {
+            $output->setDecorated(true);
+        } elseif (true === $input->hasParameterOption(['--no-ansi'], true)) {
+            $output->setDecorated(false);
+        }
+
+        if (true === $input->hasParameterOption(['--no-interaction', '-n'], true)) {
+            $input->setInteractive(false);
+        } elseif (\function_exists('posix_isatty')) {
+            $inputStream = null;
+
+            if ($input instanceof StreamableInputInterface) {
+                $inputStream = $input->getStream();
+            }
+
+            if (!@posix_isatty($inputStream) && false === getenv('SHELL_INTERACTIVE')) {
+                $input->setInteractive(false);
+            }
+        }
+
+        switch ($shellVerbosity = (int)getenv('SHELL_VERBOSITY')) {
+            case -1:
+                $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+                break;
+            case 1:
+                $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+                break;
+            case 2:
+                $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
+                break;
+            case 3:
+                $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
+                break;
+            default:
+                $shellVerbosity = 0;
+                break;
+        }
+
+        if (true === $input->hasParameterOption(['--quiet', '-q'], true)) {
+            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+            $shellVerbosity = -1;
+        } else {
+            if ($input->hasParameterOption('-vvv', true) || $input->hasParameterOption('--verbose=3',
+                    true) || 3 === $input->getParameterOption('--verbose', false, true)) {
+                $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
+                $shellVerbosity = 3;
+            } elseif ($input->hasParameterOption('-vv', true) || $input->hasParameterOption('--verbose=2',
+                    true) || 2 === $input->getParameterOption('--verbose', false, true)) {
+                $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
+                $shellVerbosity = 2;
+            } elseif ($input->hasParameterOption('-v', true) || $input->hasParameterOption('--verbose=1',
+                    true) || $input->hasParameterOption('--verbose', true) || $input->getParameterOption('--verbose',
+                    false, true)) {
+                $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+                $shellVerbosity = 1;
+            }
+        }
+
+        if (-1 === $shellVerbosity) {
+            $input->setInteractive(false);
+        }
+
+        putenv('SHELL_VERBOSITY=' . $shellVerbosity);
+        $_ENV['SHELL_VERBOSITY'] = $shellVerbosity;
+        $_SERVER['SHELL_VERBOSITY'] = $shellVerbosity;
     }
 }
