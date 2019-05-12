@@ -12,6 +12,7 @@ namespace Spiral\Console;
 use Psr\Container\ContainerInterface;
 use Spiral\Console\Traits\HelpersTrait;
 use Spiral\Core\Container;
+use Spiral\Core\Exception\ScopeException;
 use Spiral\Core\ResolverInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -56,6 +57,10 @@ abstract class Command extends SymfonyCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if (is_null($this->container)) {
+            throw new ScopeException("Container is not set");
+        }
+
         $reflection = new \ReflectionMethod($this, 'perform');
         $reflection->setAccessible(true);
 
