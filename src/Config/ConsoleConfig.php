@@ -23,6 +23,8 @@ final class ConsoleConfig extends InjectableConfig
      * @var array
      */
     protected $config = [
+        'name'      => null,
+        'version'   => null,
         'commands'  => [],
         'configure' => [],
         'update'    => []
@@ -33,7 +35,7 @@ final class ConsoleConfig extends InjectableConfig
      */
     public function getName(): string
     {
-        return "Spiral Framework";
+        return $this->config['name'] ?? "Spiral Framework";
     }
 
     /**
@@ -41,7 +43,7 @@ final class ConsoleConfig extends InjectableConfig
      */
     public function getVersion(): string
     {
-        return "UNKNOWN";
+        return $this->config['version'] ?? "UNKNOWN";
     }
 
     /**
