@@ -16,10 +16,12 @@ use Spiral\Core\Container;
 use Spiral\Core\ContainerScope;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StreamableInputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class Console
@@ -65,6 +67,9 @@ final class Console
      */
     public function start(InputInterface $input = null, OutputInterface $output = null): int
     {
+        $input = $input ?? new ArgvInput();
+        $output = $output ?? new ConsoleOutput();
+
         return ContainerScope::runScope($this->container, function () use ($input, $output) {
             return $this->run(
                 $input->getFirstArgument() ?? 'list',
