@@ -12,6 +12,7 @@ namespace Spiral\Console;
 
 use Psr\Container\ContainerInterface;
 use Spiral\Console\Config\ConsoleConfig;
+use Spiral\Console\Exception\LocatorException;
 use Spiral\Core\Container;
 use Spiral\Core\ContainerScope;
 use Symfony\Component\Console\Application;
@@ -95,24 +96,17 @@ final class Console
         $input = [],
         OutputInterface $output = null
     ): CommandOutput {
-        if (is_array($input)) {
-            $input = new ArrayInput($input + compact('command'));
-        }
+        $input = is_array($input) ? new ArrayInput($input) : $input;
         $output = $output ?? new BufferedOutput();
 
         $this->configureIO($input, $output);
 
-        $command = $this->getApplication()->find($command);
-        $code = ContainerScope::runScope($this->container, function () use (
-            $command,
-            $input,
-            $output
-        ) {
-            if ($command instanceof Command) {
-                $command->setContainer($this->container);
-            }
+        if ($command !== null) {
+            $input = new InputProxy($input, ['firstArgument' => $command]);
+        }
 
-            return $command->run($input, $output);
+        $code = ContainerScope::runScope($this->container, function () use ($input, $output) {
+            return $this->getApplication()->doRun($input, $output);
         });
 
         return new CommandOutput($code ?? self::CODE_NONE, $output);
@@ -123,11 +117,11 @@ final class Console
      *
      * @return Application
      *
-     * @throws \Spiral\Console\Exception\LocatorException
+     * @throws LocatorException
      */
     public function getApplication(): Application
     {
-        if (!empty($this->application)) {
+        if ($this->application !== null) {
             return $this->application;
         }
 
@@ -135,19 +129,29 @@ final class Console
         $this->application->setCatchExceptions(false);
         $this->application->setAutoExit(false);
 
-        if (!is_null($this->locator)) {
-            foreach ($this->locator->locateCommands() as $command) {
-                $this->application->add($command);
-            }
+        if ($this->locator !== null) {
+            $this->addCommands($this->locator->locateCommands());
         }
 
         // Register user defined commands
         $static = new StaticLocator($this->config->getCommands(), $this->container);
-        foreach ($static->locateCommands() as $command) {
-            $this->application->add($command);
-        }
+        $this->addCommands($static->locateCommands());
 
         return $this->application;
+    }
+
+    /**
+     * @param iterable $commands
+     */
+    private function addCommands(iterable $commands)
+    {
+        foreach ($commands as $command) {
+            if ($command instanceof Command) {
+                $command->setContainer($this->container);
+            }
+
+            $this->application->add($command);
+        }
     }
 
     /**
@@ -157,7 +161,7 @@ final class Console
      * @param OutputInterface $output
      * @see Application::configureIO()
      */
-    protected function configureIO(InputInterface $input, OutputInterface $output)
+    private function configureIO(InputInterface $input, OutputInterface $output)
     {
         if (true === $input->hasParameterOption(['--ansi'], true)) {
             $output->setDecorated(true);
@@ -197,21 +201,33 @@ final class Console
                 break;
         }
 
-        if (true === $input->hasParameterOption(['--quiet', '-q'], true)) {
+        if (
+            true === $input->hasParameterOption(['--quiet', '-q'], true
+            )
+        ) {
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
             $shellVerbosity = -1;
         } else {
-            if ($input->hasParameterOption('-vvv', true) || $input->hasParameterOption('--verbose=3',
-                    true) || 3 === $input->getParameterOption('--verbose', false, true)) {
+            if (
+                $input->hasParameterOption('-vvv', true)
+                || $input->hasParameterOption('--verbose=3', true)
+                || 3 === $input->getParameterOption('--verbose', false, true)
+            ) {
                 $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
                 $shellVerbosity = 3;
-            } elseif ($input->hasParameterOption('-vv', true) || $input->hasParameterOption('--verbose=2',
-                    true) || 2 === $input->getParameterOption('--verbose', false, true)) {
+            } elseif (
+                $input->hasParameterOption('-vv', true)
+                || $input->hasParameterOption('--verbose=2', true)
+                || 2 === $input->getParameterOption('--verbose', false, true)
+            ) {
                 $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
                 $shellVerbosity = 2;
-            } elseif ($input->hasParameterOption('-v', true) || $input->hasParameterOption('--verbose=1',
-                    true) || $input->hasParameterOption('--verbose', true) || $input->getParameterOption('--verbose',
-                    false, true)) {
+            } elseif (
+                $input->hasParameterOption('-v', true)
+                || $input->hasParameterOption('--verbose=1', true)
+                || $input->hasParameterOption('--verbose', true)
+                || $input->getParameterOption('--verbose', false, true)
+            ) {
                 $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
                 $shellVerbosity = 1;
             }

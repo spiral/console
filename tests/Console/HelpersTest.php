@@ -36,8 +36,6 @@ class HelpersTest extends BaseTest
                 $output
             )->getOutput()->fetch()
         );
-
-
     }
 
     public function testSprinf()
