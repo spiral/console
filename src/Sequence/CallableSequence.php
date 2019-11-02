@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\Console\Sequence;
@@ -45,7 +47,7 @@ final class CallableSequence extends AbstractSequence
     /**
      * @inheritdoc
      */
-    public function execute(ContainerInterface $container, OutputInterface $output)
+    public function execute(ContainerInterface $container, OutputInterface $output): void
     {
         $function = $this->function;
         if (is_string($function) && strpos($function, ':') !== false) {

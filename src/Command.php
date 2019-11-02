@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\Console;
@@ -45,7 +47,7 @@ abstract class Command extends SymfonyCommand
     /**
      * @param ContainerInterface $container
      */
-    public function setContainer(ContainerInterface $container)
+    public function setContainer(ContainerInterface $container): void
     {
         $this->container = $container;
     }
@@ -58,7 +60,7 @@ abstract class Command extends SymfonyCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         if (is_null($this->container)) {
-            throw new ScopeException("Container is not set");
+            throw new ScopeException('Container is not set');
         }
 
         $reflection = new \ReflectionMethod($this, 'perform');
@@ -83,7 +85,7 @@ abstract class Command extends SymfonyCommand
     /**
      * Configures the command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName(static::NAME);
         $this->setDescription(static::DESCRIPTION);

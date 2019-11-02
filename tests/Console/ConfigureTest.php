@@ -1,15 +1,16 @@
 <?php
+
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests;
 
 use Spiral\Console\Command\ConfigureCommand;
-use Spiral\Console\Command\ReloadCommand;
 use Spiral\Console\Console;
 use Spiral\Console\StaticLocator;
 use Spiral\Console\Tests\Fixtures\HelperCommand;
@@ -18,12 +19,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ConfigureTest extends BaseTest
 {
-    const TOKENIZER_CONFIG = [
+    public const TOKENIZER_CONFIG = [
         'directories' => [__DIR__ . '/../../src/Command', __DIR__ . '/Fixtures/'],
         'exclude'     => []
     ];
 
-    const CONFIG = [
+    public const CONFIG = [
         'locateCommands' => false,
         'configure'      => [
             ['command' => 'test', 'header' => 'Test Command'],
@@ -35,7 +36,7 @@ class ConfigureTest extends BaseTest
         ]
     ];
 
-    public function testConfigure()
+    public function testConfigure(): void
     {
         $core = $this->getCore(new StaticLocator([
             HelperCommand::class,
@@ -46,7 +47,7 @@ class ConfigureTest extends BaseTest
 
         $result = $core->run('configure')->getOutput()->fetch();
 
-        $this->assertSame(str_replace(["\n", "\r", "  "], ' ', "Configuring project:
+        $this->assertSame(str_replace(["\n", "\r", '  '], ' ', 'Configuring project:
 
 Test Command
 Hello World - 0
@@ -58,29 +59,21 @@ OK
 OK2
 exception
 
-All done!"), trim(str_replace(["\n", "\r", "  "], ' ', $result)));
+All done!'), trim(str_replace(["\n", "\r", '  '], ' ', $result)));
     }
 
-    public function do(OutputInterface $output)
+    public function do(OutputInterface $output): void
     {
-        $output->write("OK");
+        $output->write('OK');
     }
 
-    public function err(OutputInterface $output)
+    public function err(OutputInterface $output): void
     {
         throw new ShortException();
     }
 }
 
-function ok(OutputInterface $output)
+function ok(OutputInterface $output): void
 {
-    $output->write("OK2");
-}
-
-class ShortException extends \Exception
-{
-    public function __toString()
-    {
-        return "exception";
-    }
+    $output->write('OK2');
 }

@@ -1,10 +1,12 @@
 <?php
+
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests\Fixtures\User;
 
@@ -12,13 +14,13 @@ use Spiral\Console\Command;
 
 class UserCommand extends Command
 {
-    const NAME        = 'test:user';
-    const DESCRIPTION = 'Test Command';
+    public const NAME        = 'test:user';
+    public const DESCRIPTION = 'Test Command';
 
     private $count = 0;
 
-    public function perform()
+    public function perform(): void
     {
-        $this->write("Hello User");
+        $this->write('Hello User');
     }
 }

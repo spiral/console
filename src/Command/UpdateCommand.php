@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\Console\Command;
@@ -22,7 +24,7 @@ final class UpdateCommand extends Command
      * @param ConsoleConfig      $config
      * @param ContainerInterface $container
      */
-    public function perform(ConsoleConfig $config, ContainerInterface $container)
+    public function perform(ConsoleConfig $config, ContainerInterface $container): void
     {
         $this->writeln("<info>Updating project state:</info>\n");
 
@@ -36,9 +38,9 @@ final class UpdateCommand extends Command
                 $this->sprintf("<error>%s</error>\n", $e);
             }
 
-            $this->writeln("");
+            $this->writeln('');
         }
 
-        $this->writeln("<info>All done!</info>");
+        $this->writeln('<info>All done!</info>');
     }
 }

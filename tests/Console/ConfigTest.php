@@ -1,10 +1,12 @@
 <?php
+
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests;
 
@@ -17,7 +19,7 @@ class ConfigTest extends TestCase
     /**
      * @expectedException \Spiral\Console\Exception\ConfigException
      */
-    public function testBadSequence()
+    public function testBadSequence(): void
     {
         $config = new ConsoleConfig([
             'updateSequence' => [
@@ -28,11 +30,11 @@ class ConfigTest extends TestCase
         iterator_to_array($config->updateSequence());
     }
 
-    public function testForcedSequence()
+    public function testForcedSequence(): void
     {
         $config = new ConsoleConfig([
             'updateSequence' => [
-                new CallableSequence("test")
+                new CallableSequence('test')
             ]
         ]);
 

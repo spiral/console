@@ -1,10 +1,12 @@
 <?php
+
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests;
 
@@ -18,7 +20,7 @@ class ScopeTest extends TestCase
     /**
      * @expectedException \Spiral\Core\Exception\ScopeException
      */
-    public function testScopeError()
+    public function testScopeError(): void
     {
         $c = new UserCommand();
         $c->run(new ArrayInput([]), new BufferedOutput());

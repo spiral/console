@@ -1,11 +1,12 @@
 <?php
 
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests\Fixtures;
 
@@ -14,13 +15,13 @@ use Spiral\Core\Container\SingletonInterface;
 
 class TestCommand extends Command implements SingletonInterface
 {
-    const NAME        = 'test';
-    const DESCRIPTION = 'Test Command';
+    public const NAME        = 'test';
+    public const DESCRIPTION = 'Test Command';
 
     private $count = 0;
 
-    public function perform()
+    public function perform(): void
     {
-        $this->write("Hello World - " . ($this->count++));
+        $this->write('Hello World - ' . ($this->count++));
     }
 }

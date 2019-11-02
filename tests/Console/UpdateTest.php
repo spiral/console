@@ -1,10 +1,12 @@
 <?php
+
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests;
 
@@ -17,12 +19,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateTest extends BaseTest
 {
-    const TOKENIZER_CONFIG = [
+    public const TOKENIZER_CONFIG = [
         'directories' => [__DIR__ . '/../../src/Command', __DIR__ . '/Fixtures/'],
         'exclude'     => []
     ];
 
-    const CONFIG = [
+    public const CONFIG = [
         'locateCommands' => false,
         'commands'       => [],
         'update'         => [
@@ -35,7 +37,7 @@ class UpdateTest extends BaseTest
         ]
     ];
 
-    public function testConfigure()
+    public function testConfigure(): void
     {
         $core = $this->getCore(new StaticLocator([
             HelperCommand::class,
@@ -47,7 +49,7 @@ class UpdateTest extends BaseTest
 
         $result = $core->run('update')->getOutput()->fetch();
 
-        $this->assertSame(str_replace(["\n", "\r", "  "], ' ', "Updating project state:
+        $this->assertSame(str_replace(["\n", "\r", '  '], ' ', 'Updating project state:
 
 Test Command
 Hello World - 0
@@ -59,15 +61,15 @@ OK
 OK2
 exception
 
-All done!"), trim(str_replace(["\n", "\r", "  "], ' ', $result)));
+All done!'), trim(str_replace(["\n", "\r", '  '], ' ', $result)));
     }
 
-    public function do(OutputInterface $output)
+    public function do(OutputInterface $output): void
     {
-        $output->write("OK");
+        $output->write('OK');
     }
 
-    public function err(OutputInterface $output)
+    public function err(OutputInterface $output): void
     {
         throw new ShortException();
     }

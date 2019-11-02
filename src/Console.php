@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Spiral Framework.
  *
@@ -143,7 +144,7 @@ final class Console
     /**
      * @param iterable $commands
      */
-    private function addCommands(iterable $commands)
+    private function addCommands(iterable $commands): void
     {
         foreach ($commands as $command) {
             if ($command instanceof Command) {
@@ -161,7 +162,7 @@ final class Console
      * @param OutputInterface $output
      * @see Application::configureIO()
      */
-    private function configureIO(InputInterface $input, OutputInterface $output)
+    private function configureIO(InputInterface $input, OutputInterface $output): void
     {
         if (true === $input->hasParameterOption(['--ansi'], true)) {
             $output->setDecorated(true);
@@ -202,8 +203,7 @@ final class Console
         }
 
         if (
-            true === $input->hasParameterOption(['--quiet', '-q'], true
-            )
+            true === $input->hasParameterOption(['--quiet', '-q'], true)
         ) {
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
             $shellVerbosity = -1;

@@ -1,10 +1,12 @@
 <?php
+
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests;
 
@@ -18,21 +20,20 @@ use Spiral\Core\Container;
 
 abstract class BaseTest extends TestCase
 {
-    protected $container;
-
-    const TOKENIZER_CONFIG = [
+    public const TOKENIZER_CONFIG = [
         'directories' => [__DIR__ . '/Fixtures/'],
         'exclude'     => ['User'],
     ];
 
-    const CONFIG = [
+    public const CONFIG = [
         'locateCommands' => false,
         'commands'       => [
             UserCommand::class
         ]
     ];
+    protected $container;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->container = new Container();
 

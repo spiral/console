@@ -1,10 +1,12 @@
 <?php
+
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests\Fixtures;
 
@@ -13,23 +15,23 @@ use Symfony\Component\Console\Input\InputArgument;
 
 class HelperCommand extends Command
 {
-    const NAME = 'helper';
+    public const NAME = 'helper';
 
     /**
      * {@inheritdoc}
      */
-    const ARGUMENTS = [
+    public const ARGUMENTS = [
         ['helper', InputArgument::REQUIRED, 'Helper'],
     ];
 
-    public function perform()
+    public function perform(): void
     {
         switch ($this->argument('helper')) {
-            case "verbose":
+            case 'verbose':
                 $this->write($this->isVerbose() ? 'true' : 'false');
                 break;
             case 'sprintf':
-                $this->sprintf("%s world", 'hello');
+                $this->sprintf('%s world', 'hello');
                 break;
 
             case 'writeln':

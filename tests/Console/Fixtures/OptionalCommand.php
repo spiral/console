@@ -1,10 +1,12 @@
 <?php
+
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests\Fixtures;
 
@@ -14,23 +16,23 @@ use Symfony\Component\Console\Input\InputOption;
 
 class OptionalCommand extends Command
 {
-    const NAME = 'optional';
+    public const NAME = 'optional';
 
     /**
      * {@inheritdoc}
      */
-    const OPTIONS = [
+    public const OPTIONS = [
         ['option', 'o', InputOption::VALUE_NONE, 'Use option']
     ];
 
     /**
      * {@inheritdoc}
      */
-    const ARGUMENTS = [
+    public const ARGUMENTS = [
         ['arg', InputArgument::OPTIONAL, 'Value'],
     ];
 
-    public function perform()
+    public function perform(): void
     {
         $this->write(!$this->option('option') ? 'no option' : $this->argument('arg'));
     }

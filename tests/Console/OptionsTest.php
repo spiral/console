@@ -1,10 +1,12 @@
 <?php
+
 /**
- * Spiral Framework.
+ * Spiral Framework, SpiralScout LLC.
  *
- * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\Console\Tests;
 
@@ -13,19 +15,19 @@ use Spiral\Console\Tests\Fixtures\OptionalCommand;
 
 class OptionsTest extends BaseTest
 {
-    public function testOptions()
+    public function testOptions(): void
     {
         $core = $this->getCore(new StaticLocator([
             OptionalCommand::class
         ]));
 
         $this->assertSame(
-            "no option",
+            'no option',
             $core->run('optional')->getOutput()->fetch()
         );
 
         $this->assertSame(
-            "hello",
+            'hello',
             $core->run('optional', ['-o' => true, 'arg' => 'hello'])->getOutput()->fetch()
         );
 

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\Console\Config;
@@ -17,7 +19,7 @@ use Spiral\Core\InjectableConfig;
 
 final class ConsoleConfig extends InjectableConfig
 {
-    const CONFIG = 'console';
+    public const CONFIG = 'console';
 
     /**
      * @var array
@@ -35,7 +37,7 @@ final class ConsoleConfig extends InjectableConfig
      */
     public function getName(): string
     {
-        return $this->config['name'] ?? "Spiral Framework";
+        return $this->config['name'] ?? 'Spiral Framework';
     }
 
     /**
@@ -43,7 +45,7 @@ final class ConsoleConfig extends InjectableConfig
      */
     public function getVersion(): string
     {
-        return $this->config['version'] ?? "UNKNOWN";
+        return $this->config['version'] ?? 'UNKNOWN';
     }
 
     /**
@@ -126,7 +128,7 @@ final class ConsoleConfig extends InjectableConfig
         }
 
         throw new ConfigException(sprintf(
-            "Unable to parse sequence `%s`.",
+            'Unable to parse sequence `%s`.',
             json_encode($item)
         ));
     }
