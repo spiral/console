@@ -59,7 +59,7 @@ abstract class Command extends SymfonyCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (is_null($this->container)) {
+        if ($this->container === null) {
             throw new ScopeException('Container is not set');
         }
 
@@ -73,12 +73,12 @@ abstract class Command extends SymfonyCommand
             list($this->input, $this->output) = [$input, $output];
 
             //Executing perform method with method injection
-            return $reflection->invokeArgs($this, $resolver->resolveArguments(
+            return (int)$reflection->invokeArgs($this, $resolver->resolveArguments(
                 $reflection,
                 compact('input', 'output')
             ));
         } finally {
-            list($this->input, $this->output) = [null, null];
+            [$this->input, $this->output] = [null, null];
         }
     }
 
