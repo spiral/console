@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace Spiral\Console\Tests;
 
-use Spiral\Console\Command\ReloadCommand;
 use Spiral\Console\StaticLocator;
 use Spiral\Console\Tests\Fixtures\TestCommand;
 use Symfony\Component\Console\Input\ArrayInput;

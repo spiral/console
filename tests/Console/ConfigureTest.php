@@ -11,11 +11,15 @@ declare(strict_types=1);
 namespace Spiral\Console\Tests;
 
 use Spiral\Console\Command\ConfigureCommand;
+use Spiral\Console\Config\ConsoleConfig;
 use Spiral\Console\Console;
 use Spiral\Console\StaticLocator;
+use Spiral\Console\Tests\Fixtures\AnotherFailedCommand;
+use Spiral\Console\Tests\Fixtures\FailedCommand;
 use Spiral\Console\Tests\Fixtures\HelperCommand;
 use Spiral\Console\Tests\Fixtures\TestCommand;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 class ConfigureTest extends BaseTest
 {
@@ -36,6 +40,9 @@ class ConfigureTest extends BaseTest
         ]
     ];
 
+    /**
+     * @throws Throwable
+     */
     public function testConfigure(): void
     {
         $core = $this->getCore(new StaticLocator([
@@ -62,6 +69,55 @@ exception
 All done!'), trim(str_replace(["\n", "\r", '  '], ' ', $result)));
     }
 
+    /**
+     * @throws Throwable
+     */
+    public function testBreakFailure(): void
+    {
+        $core = $this->bindFailure();
+
+        $output = $core->run('configure', ['--break' => true]);
+        $result = $output->getOutput()->fetch();
+
+        $this->assertStringContainsString('Unhandled failed command error at', $result);
+        $this->assertStringContainsString('Aborting.', $result);
+        $this->assertStringNotContainsString('Unhandled another failed command error at', $result);
+        $this->assertEquals(1, $output->getCode());
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function testIgnoreAndBreakFailure(): void
+    {
+        $core = $this->bindFailure();
+
+        $output = $core->run('configure', ['--ignore' => true, '--break' => true]);
+        $result = $output->getOutput()->fetch();
+
+        $this->assertStringContainsString('Unhandled failed command error at', $result);
+        $this->assertStringNotContainsString('Aborting.', $result);
+        $this->assertStringContainsString('Unhandled another failed command error at', $result);
+        $this->assertEquals(0, $output->getCode());
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function testNoBreakFailure(): void
+    {
+        $core = $this->bindFailure();
+        $this->container->bind(Console::class, $core);
+
+        $output = $core->run('configure');
+        $result = $output->getOutput()->fetch();
+
+        $this->assertStringContainsString('Unhandled failed command error at', $result);
+        $this->assertStringNotContainsString('Aborting.', $result);
+        $this->assertStringContainsString('Unhandled another failed command error at', $result);
+        $this->assertEquals(1, $output->getCode());
+    }
+
     public function do(OutputInterface $output): void
     {
         $output->write('OK');
@@ -69,7 +125,31 @@ All done!'), trim(str_replace(["\n", "\r", '  '], ' ', $result)));
 
     public function err(OutputInterface $output): void
     {
-        throw new ShortException();
+        throw new ShortException('Failed configure command');
+    }
+
+    /**
+     * @return Console
+     */
+    private function bindFailure(): Console
+    {
+        $core = $this->getCore(new StaticLocator([
+            HelperCommand::class,
+            ConfigureCommand::class,
+            TestCommand::class,
+            FailedCommand::class,
+            AnotherFailedCommand::class,
+        ]));
+        $this->container->bind(ConsoleConfig::class, new ConsoleConfig([
+            'locateCommands' => false,
+            'configure'      => [
+                ['command' => 'failed', 'header' => 'Failed Command'],
+                ['command' => 'failed:another', 'header' => 'Another failed Command'],
+            ]
+        ]));
+        $this->container->bind(Console::class, $core);
+
+        return $core;
     }
 }
 
