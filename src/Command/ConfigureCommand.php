@@ -12,10 +12,9 @@ declare(strict_types=1);
 namespace Spiral\Console\Command;
 
 use Psr\Container\ContainerInterface;
-use Spiral\Console\Command;
 use Spiral\Console\Config\ConsoleConfig;
 
-final class ConfigureCommand extends Command
+final class ConfigureCommand extends SequenceCommand
 {
     protected const NAME        = 'configure';
     protected const DESCRIPTION = 'Configure project';
@@ -23,24 +22,12 @@ final class ConfigureCommand extends Command
     /**
      * @param ConsoleConfig      $config
      * @param ContainerInterface $container
+     * @return int
      */
-    public function perform(ConsoleConfig $config, ContainerInterface $container): void
+    public function perform(ConsoleConfig $config, ContainerInterface $container): int
     {
         $this->writeln("<info>Configuring project:</info>\n");
 
-        foreach ($config->configureSequence() as $sequence) {
-            $sequence->writeHeader($this->output);
-
-            try {
-                $sequence->execute($container, $this->output);
-                $sequence->whiteFooter($this->output);
-            } catch (\Throwable $e) {
-                $this->sprintf("<error>%s</error>\n", $e);
-            }
-
-            $this->writeln('');
-        }
-
-        $this->writeln('<info>All done!</info>');
+        return $this->runSequence($config->configureSequence(), $container);
     }
 }
