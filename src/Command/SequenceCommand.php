@@ -11,10 +11,9 @@ declare(strict_types=1);
 
 namespace Spiral\Console\Command;
 
-use Generator;
 use Psr\Container\ContainerInterface;
 use Spiral\Console\Command;
-use Spiral\Console\Config\ConsoleConfig;
+use Spiral\Console\SequenceInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
@@ -26,11 +25,11 @@ abstract class SequenceCommand extends Command
     ];
 
     /**
-     * @param Generator $commands
-     * @param ContainerInterface $container
+     * @param iterable|SequenceInterface[] $commands
+     * @param ContainerInterface           $container
      * @return int
      */
-    protected function runSequence(Generator $commands, ContainerInterface $container): int
+    protected function runSequence(iterable $commands, ContainerInterface $container): int
     {
         $errors = 0;
         foreach ($commands as $sequence) {
