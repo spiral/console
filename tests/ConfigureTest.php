@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Spiral Framework, SpiralScout LLC.
- *
- * @author    Anton Titov (Wolfy-J)
- */
-
 declare(strict_types=1);
 
 namespace Spiral\Tests\Console;
@@ -13,7 +7,6 @@ namespace Spiral\Tests\Console;
 use Spiral\Console\Command\ConfigureCommand;
 use Spiral\Console\Config\ConsoleConfig;
 use Spiral\Console\Console;
-use Spiral\Console\StaticLocator;
 use Spiral\Tests\Console\Fixtures\AnotherFailedCommand;
 use Spiral\Tests\Console\Fixtures\FailedCommand;
 use Spiral\Tests\Console\Fixtures\HelperCommand;
@@ -24,20 +17,22 @@ use Throwable;
 class ConfigureTest extends BaseTest
 {
     public const TOKENIZER_CONFIG = [
-        'directories' => [__DIR__ . '/../src/Command', __DIR__ . '/Fixtures/'],
-        'exclude'     => []
+        'directories' => [__DIR__.'/../src/Command', __DIR__.'/Fixtures/'],
+        'exclude' => [],
     ];
 
     public const CONFIG = [
         'locateCommands' => false,
-        'configure'      => [
-            ['command' => 'test', 'header' => 'Test Command'],
-            ['command' => 'helper', 'options' => ['helper' => 'writeln'], 'footer' => 'Good!'],
-            ['invoke' => [self::class, 'do']],
-            ['invoke' => self::class . '::do'],
-            'Spiral\Tests\Console\ok',
-            ['invoke' => self::class . '::err'],
-        ]
+        'sequences' => [
+            'configure' => [
+                ['command' => 'test', 'header' => 'Test Command'],
+                ['command' => 'helper', 'options' => ['helper' => 'writeln'], 'footer' => 'Good!'],
+                ['invoke' => [self::class, 'do']],
+                ['invoke' => self::class.'::do'],
+                'Spiral\Tests\Console\ok',
+                ['invoke' => self::class.'::err'],
+            ],
+        ],
     ];
 
     /**
@@ -45,31 +40,34 @@ class ConfigureTest extends BaseTest
      */
     public function testConfigure(): void
     {
-        $core = $this->getCore(new StaticLocator([
-            HelperCommand::class,
-            ConfigureCommand::class,
-            TestCommand::class
-        ]));
+        $core = $this->getCore(
+           $this->getStaticLocator([
+               HelperCommand::class,
+               ConfigureCommand::class,
+               TestCommand::class,
+           ])
+        );
+
         $this->container->bind(Console::class, $core);
 
         $actual = $core->run('configure')->getOutput()->fetch();
 
         $expected = <<<'text'
-Configuring project:
+            Configuring project:
 
-Test Command
-Hello World - 0
-hello
-Good!
+            Test Command
+            Hello World - 0
+            hello
+            Good!
 
-OK
-OK
-OK2
-exception
+            OK
+            OK
+            OK2
+            exception
 
-All done!
+            All done!
 
-text;
+            text;
 
         $this->assertSame(
             \str_replace("\r", '', $expected),
@@ -141,20 +139,27 @@ text;
      */
     private function bindFailure(): Console
     {
-        $core = $this->getCore(new StaticLocator([
-            HelperCommand::class,
-            ConfigureCommand::class,
-            TestCommand::class,
-            FailedCommand::class,
-            AnotherFailedCommand::class,
-        ]));
-        $this->container->bind(ConsoleConfig::class, new ConsoleConfig([
-            'locateCommands' => false,
-            'configure'      => [
-                ['command' => 'failed', 'header' => 'Failed Command'],
-                ['command' => 'failed:another', 'header' => 'Another failed Command'],
-            ]
-        ]));
+        $core = $this->getCore(
+            $this->getStaticLocator([
+                HelperCommand::class,
+                ConfigureCommand::class,
+                TestCommand::class,
+                FailedCommand::class,
+                AnotherFailedCommand::class,
+            ])
+        );
+        $this->container->bind(
+            ConsoleConfig::class,
+            new ConsoleConfig([
+                'locateCommands' => false,
+                'sequences' => [
+                    'configure' => [
+                        ['command' => 'failed', 'header' => 'Failed Command'],
+                        ['command' => 'failed:another', 'header' => 'Another failed Command'],
+                    ],
+                ]
+            ])
+        );
         $this->container->bind(Console::class, $core);
 
         return $core;

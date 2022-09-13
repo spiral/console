@@ -1,21 +1,16 @@
 <?php
 
-/**
- * Spiral Framework.
- *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
- */
-
 declare(strict_types=1);
 
 namespace Spiral\Console;
 
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Spiral\Console\Config\ConsoleConfig;
 use Spiral\Console\Exception\LocatorException;
 use Spiral\Core\Container;
-use Spiral\Core\ContainerScope;
+use Spiral\Core\ScopeInterface;
+use Spiral\Events\EventDispatcherAwareInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -25,73 +20,53 @@ use Symfony\Component\Console\Input\StreamableInputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as SymfonyEventDispatcherInterface;
 
 final class Console
 {
     // Undefined response code for command (errors). See below.
     public const CODE_NONE = 102;
 
-    /** @var ConsoleConfig */
-    private $config;
-
-    /** @var LocatorInterface|null */
-    private $locator;
-
-    /** @var ContainerInterface */
-    private $container;
-
-    /** @var Application|null */
-    private $application;
+    private ?Application $application = null;
 
     public function __construct(
-        ConsoleConfig $config,
-        LocatorInterface $locator = null,
-        ContainerInterface $container = null
+        private readonly ConsoleConfig $config,
+        private readonly ?LocatorInterface $locator = null,
+        private readonly ContainerInterface $container = new Container(),
+        private readonly ScopeInterface $scope = new Container(),
+        private readonly ?EventDispatcherInterface $dispatcher = null
     ) {
-        $this->config = $config;
-        $this->locator = $locator;
-        $this->container = $container ?? new Container();
     }
 
     /**
      * Run console application.
      *
-     * @param InputInterface|null  $input
-     * @param OutputInterface|null $output
-     *
      * @throws \Throwable
      */
-    public function start(InputInterface $input = null, OutputInterface $output = null): int
+    public function start(InputInterface $input = new ArgvInput(), OutputInterface $output = new ConsoleOutput()): int
     {
-        $input = $input ?? new ArgvInput();
-        $output = $output ?? new ConsoleOutput();
-
-        return ContainerScope::runScope($this->container, function () use ($input, $output) {
-            return $this->run(
+        return $this->scope->runScope(
+            [],
+            fn () => $this->run(
                 $input->getFirstArgument() ?? 'list',
                 $input,
                 $output
-            )->getCode();
-        });
+            )->getCode()
+        );
     }
 
     /**
      * Run selected command.
-     *
-     * @param string               $command
-     * @param InputInterface|array $input
-     * @param OutputInterface|null $output
      *
      * @throws \Throwable
      * @throws CommandNotFoundException
      */
     public function run(
         ?string $command,
-        $input = [],
-        OutputInterface $output = null
+        array|InputInterface $input = [],
+        OutputInterface $output = new BufferedOutput()
     ): CommandOutput {
-        $input = is_array($input) ? new ArrayInput($input) : $input;
-        $output = $output ?? new BufferedOutput();
+        $input = \is_array($input) ? new ArrayInput($input) : $input;
 
         $this->configureIO($input, $output);
 
@@ -99,16 +74,16 @@ final class Console
             $input = new InputProxy($input, ['firstArgument' => $command]);
         }
 
-        $code = ContainerScope::runScope($this->container, function () use ($input, $output) {
-            return $this->getApplication()->doRun($input, $output);
-        });
+        $code = $this->scope->runScope([
+            InputInterface::class => $input,
+            OutputInterface::class => $output,
+        ], fn () => $this->getApplication()->doRun($input, $output));
 
         return new CommandOutput($code ?? self::CODE_NONE, $output);
     }
 
     /**
      * Get associated Symfony Console Application.
-     *
      *
      * @throws LocatorException
      */
@@ -121,13 +96,21 @@ final class Console
         $this->application = new Application($this->config->getName(), $this->config->getVersion());
         $this->application->setCatchExceptions(false);
         $this->application->setAutoExit(false);
+        if ($this->dispatcher instanceof SymfonyEventDispatcherInterface) {
+            $this->application->setDispatcher($this->dispatcher);
+        }
 
         if ($this->locator !== null) {
             $this->addCommands($this->locator->locateCommands());
         }
 
         // Register user defined commands
-        $static = new StaticLocator($this->config->getCommands(), $this->container);
+        $static = new StaticLocator(
+            $this->config->getCommands(),
+            $this->config->getInterceptors(),
+            $this->container
+        );
+
         $this->addCommands($static->locateCommands());
 
         return $this->application;
@@ -135,9 +118,16 @@ final class Console
 
     private function addCommands(iterable $commands): void
     {
+        $interceptors = $this->config->getInterceptors();
+
         foreach ($commands as $command) {
             if ($command instanceof Command) {
                 $command->setContainer($this->container);
+                $command->setInterceptors($interceptors);
+            }
+
+            if ($this->dispatcher !== null && $command instanceof EventDispatcherAwareInterface) {
+                $command->setEventDispatcher($this->dispatcher);
             }
 
             $this->application->add($command);
@@ -151,13 +141,13 @@ final class Console
      */
     private function configureIO(InputInterface $input, OutputInterface $output): void
     {
-        if (true === $input->hasParameterOption(['--ansi'], true)) {
+        if ($input->hasParameterOption(['--ansi'], true)) {
             $output->setDecorated(true);
-        } elseif (true === $input->hasParameterOption(['--no-ansi'], true)) {
+        } elseif ($input->hasParameterOption(['--no-ansi'], true)) {
             $output->setDecorated(false);
         }
 
-        if (true === $input->hasParameterOption(['--no-interaction', '-n'], true)) {
+        if ($input->hasParameterOption(['--no-interaction', '-n'], true)) {
             $input->setInteractive(false);
         } elseif (\function_exists('posix_isatty')) {
             $inputStream = null;
@@ -171,27 +161,15 @@ final class Console
             }
         }
 
-        switch ($shellVerbosity = (int)getenv('SHELL_VERBOSITY')) {
-            case -1:
-                $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-                break;
-            case 1:
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-                break;
-            case 2:
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
-                break;
-            case 3:
-                $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
-                break;
-            default:
-                $shellVerbosity = 0;
-                break;
-        }
+        match ($shellVerbosity = (int) getenv('SHELL_VERBOSITY')) {
+            -1 => $output->setVerbosity(OutputInterface::VERBOSITY_QUIET),
+            1 => $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE),
+            2 => $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE),
+            3 => $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG),
+            default => $shellVerbosity = 0
+        };
 
-        if (
-            true === $input->hasParameterOption(['--quiet', '-q'], true)
-        ) {
+        if ($input->hasParameterOption(['--quiet', '-q'], true)) {
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
             $shellVerbosity = -1;
         } else {
@@ -224,7 +202,7 @@ final class Console
             $input->setInteractive(false);
         }
 
-        putenv('SHELL_VERBOSITY=' . $shellVerbosity);
+        \putenv('SHELL_VERBOSITY=' . $shellVerbosity);
         $_ENV['SHELL_VERBOSITY'] = $shellVerbosity;
         $_SERVER['SHELL_VERBOSITY'] = $shellVerbosity;
     }

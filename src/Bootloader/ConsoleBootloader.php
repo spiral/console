@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Spiral Framework.
- *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
- */
-
 declare(strict_types=1);
 
 namespace Spiral\Console\Bootloader;
@@ -19,14 +12,18 @@ use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Append;
 use Spiral\Config\Patch\Prepend;
 use Spiral\Console\CommandLocator;
+use Spiral\Console\CommandLocatorListener;
+use Spiral\Console\Config\ConsoleConfig;
 use Spiral\Console\Console;
 use Spiral\Console\ConsoleDispatcher;
 use Spiral\Console\LocatorInterface;
 use Spiral\Console\Sequence\CallableSequence;
 use Spiral\Console\Sequence\CommandSequence;
 use Spiral\Core\Container\SingletonInterface;
+use Spiral\Core\CoreInterceptorInterface;
 use Spiral\Core\FactoryInterface;
-use Spiral\Tokenizer\Bootloader\TokenizerBootloader;
+use Spiral\Tokenizer\Bootloader\TokenizerListenerBootloader;
+use Spiral\Tokenizer\TokenizerListenerRegistryInterface;
 
 /**
  * Bootloads console and provides ability to register custom bootload commands.
@@ -34,40 +31,52 @@ use Spiral\Tokenizer\Bootloader\TokenizerBootloader;
 final class ConsoleBootloader extends Bootloader implements SingletonInterface
 {
     protected const DEPENDENCIES = [
-        TokenizerBootloader::class,
+        TokenizerListenerBootloader::class,
     ];
 
     protected const SINGLETONS = [
         Console::class => Console::class,
-        LocatorInterface::class => CommandLocator::class,
+        // LocatorInterface::class => CommandLocator::class,
     ];
 
-    /** @var ConfiguratorInterface */
-    private $config;
-
-    public function __construct(ConfiguratorInterface $config)
-    {
-        $this->config = $config;
+    public function __construct(
+        private readonly ConfiguratorInterface $config
+    ) {
     }
 
-    public function boot(AbstractKernel $kernel, FactoryInterface $factory): void
+    public function init(AbstractKernel $kernel): void
     {
         // Lowest priority
-        $kernel->started(static function (AbstractKernel $kernel) use ($factory): void {
+        $kernel->bootstrapped(static function (AbstractKernel $kernel, FactoryInterface $factory): void {
             $kernel->addDispatcher($factory->make(ConsoleDispatcher::class));
         });
 
         $this->config->setDefaults(
-            'console',
+            ConsoleConfig::CONFIG,
             [
                 'commands' => [],
-                'configure' => [],
-                'update' => [],
+                'sequences' => [],
             ]
         );
 
         $this->addCommand(CleanCommand::class);
         $this->addCommand(PublishCommand::class);
+    }
+
+    public function boot(TokenizerListenerRegistryInterface $listenerRegistry, CommandLocatorListener $listener): void
+    {
+        $listenerRegistry->addListener($listener);
+    }
+
+    /**
+     * @param class-string<CoreInterceptorInterface>|string $interceptor
+     */
+    public function addInterceptor(string $interceptor): void
+    {
+        $this->config->modify(
+            ConsoleConfig::CONFIG,
+            new Append('interceptors', null, $interceptor)
+        );
     }
 
     /**
@@ -78,65 +87,64 @@ final class ConsoleBootloader extends Bootloader implements SingletonInterface
     public function addCommand(string $command, bool $lowPriority = false): void
     {
         $this->config->modify(
-            'console',
+            ConsoleConfig::CONFIG,
             $lowPriority
                 ? new Prepend('commands', null, $command)
                 : new Append('commands', null, $command)
         );
     }
 
-    /**
-     * @param array|string|\Closure $sequence
-     */
     public function addConfigureSequence(
-        $sequence,
+        string|array|\Closure $sequence,
         string $header,
         string $footer = '',
         array $options = []
     ): void {
-        $this->config->modify(
-            'console',
-            $this->sequence('configure', $sequence, $header, $footer, $options)
-        );
+        $this->addSequence('configure', $sequence, $header, $footer, $options);
     }
 
-    /**
-     * @param array|string|\Closure $sequence
-     */
     public function addUpdateSequence(
-        $sequence,
+        string|array|\Closure $sequence,
         string $header,
         string $footer = '',
         array $options = []
     ): void {
+        $this->addSequence('update', $sequence, $header, $footer, $options);
+    }
+
+    public function addSequence(
+        string $name,
+        string|array|\Closure $sequence,
+        string $header,
+        string $footer = '',
+        array $options = []
+    ): void {
+        if (!isset($this->config->getConfig(ConsoleConfig::CONFIG)['sequences'][$name])) {
+            $this->config->modify(
+                ConsoleConfig::CONFIG,
+                new Append('sequences', $name, [])
+            );
+        }
+
         $this->config->modify(
-            'console',
-            $this->sequence('update', $sequence, $header, $footer, $options)
+            ConsoleConfig::CONFIG,
+            $this->sequence('sequences.' . $name, $sequence, $header, $footer, $options)
         );
     }
 
-    /**
-     * @param array|string|\Closure $sequence
-     */
     private function sequence(
         string $target,
-        $sequence,
+        string|array|callable $sequence,
         string $header,
         string $footer,
         array $options
     ): Append {
-        if (is_array($sequence) || $sequence instanceof \Closure) {
-            return new Append(
-                $target,
-                null,
-                new CallableSequence($sequence, $options, $header, $footer)
-            );
-        }
-
         return new Append(
             $target,
-            $sequence,
-            new CommandSequence($sequence, $options, $header, $footer)
+            \is_string($sequence) ? $sequence : null,
+            \is_array($sequence) || \is_callable($sequence)
+                ? new CallableSequence($sequence, $header, $footer)
+                : new CommandSequence($sequence, $options, $header, $footer)
         );
     }
 }

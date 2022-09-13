@@ -1,81 +1,123 @@
 <?php
 
-/**
- * Spiral Framework.
- *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
- */
-
 declare(strict_types=1);
 
 namespace Spiral\Console;
 
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Spiral\Console\Event\CommandFinished;
+use Spiral\Console\Event\CommandStarting;
+use Spiral\Console\Signature\Parser;
 use Spiral\Console\Traits\HelpersTrait;
-use Spiral\Core\Container;
+use Spiral\Core\CoreInterceptorInterface;
+use Spiral\Core\CoreInterface;
 use Spiral\Core\Exception\ScopeException;
-use Spiral\Core\ResolverInterface;
+use Spiral\Core\InterceptableCore;
+use Spiral\Events\EventDispatcherAwareInterface;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Provides automatic command configuration and access to global container scope.
  */
-abstract class Command extends SymfonyCommand
+abstract class Command extends SymfonyCommand implements EventDispatcherAwareInterface
 {
     use HelpersTrait;
 
-    // Command name.
+    /** Command name. */
     protected const NAME = '';
-
-    //  Short command description.
-    protected const DESCRIPTION = '';
-
-    // Command options specified in Symphony format. For more complex definitions redefine
-    // getOptions() method.
+    /** Short command description. */
+    protected const DESCRIPTION = null;
+    /** Command signature. */
+    protected const SIGNATURE = null;
+    /** Command options specified in Symfony format. For more complex definitions redefine getOptions() method. */
     protected const OPTIONS = [];
-
-    // Command arguments specified in Symphony format. For more complex definitions redefine
-    // getArguments() method.
+    /** Command arguments specified in Symfony format. For more complex definitions redefine getArguments() method. */
     protected const ARGUMENTS = [];
 
-    /** @var Container|null */
-    protected $container;
+    protected ?ContainerInterface $container = null;
+    protected ?EventDispatcherInterface $eventDispatcher = null;
 
+    /** @var array<class-string<CoreInterceptorInterface>> */
+    protected array $interceptors = [];
+
+    /** {@internal} */
     public function setContainer(ContainerInterface $container): void
     {
         $this->container = $container;
     }
 
     /**
-     * {@inheritdoc}
-     *
+     * {@internal}
+     * @param array<class-string<CoreInterceptorInterface>> $interceptors
+     */
+    public function setInterceptors(array $interceptors): void
+    {
+        $this->interceptors = $interceptors;
+    }
+
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
      * Pass execution to "perform" method using container to resolve method dependencies.
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->container === null) {
             throw new ScopeException('Container is not set');
         }
 
-        $reflection = new \ReflectionMethod($this, 'perform');
-        $reflection->setAccessible(true);
+        $method = method_exists($this, 'perform') ? 'perform' : '__invoke';
 
-        $resolver = $this->container->get(ResolverInterface::class);
+        $core = $this->buildCore();
 
         try {
-            [$this->input, $this->output] = [$input, $output];
+            [$this->input, $this->output] = [$this->prepareInput($input), $this->prepareOutput($input, $output)];
 
-            //Executing perform method with method injection
-            return (int)$reflection->invokeArgs($this, $resolver->resolveArguments(
-                $reflection,
-                compact('input', 'output')
-            ));
+            $this->eventDispatcher?->dispatch(new CommandStarting($this, $this->input, $this->output));
+
+            // Executing perform method with method injection
+            $code = (int)$core->callAction(static::class, $method, [
+                'input' => $this->input,
+                'output' => $this->output,
+                'command' => $this,
+            ]);
+
+            $this->eventDispatcher?->dispatch(new CommandFinished($this, $code, $this->input, $this->output));
+
+            return $code;
         } finally {
             [$this->input, $this->output] = [null, null];
         }
+    }
+
+    protected function buildCore(): CoreInterface
+    {
+        $core = $this->container->get(CommandCore::class);
+
+        $interceptableCore = new InterceptableCore($core, $this->eventDispatcher);
+
+        foreach ($this->interceptors as $interceptor) {
+            $interceptableCore->addInterceptor($this->container->get($interceptor));
+        }
+
+        return $interceptableCore;
+    }
+
+    protected function prepareInput(InputInterface $input): InputInterface
+    {
+        return $input;
+    }
+
+    protected function prepareOutput(InputInterface $input, OutputInterface $output): OutputInterface
+    {
+        return new SymfonyStyle($input, $output);
     }
 
     /**
@@ -83,15 +125,35 @@ abstract class Command extends SymfonyCommand
      */
     protected function configure(): void
     {
-        $this->setName(static::NAME);
-        $this->setDescription(static::DESCRIPTION);
+        if (static::SIGNATURE !== null) {
+            $this->configureViaSignature((string)static::SIGNATURE);
+        } else {
+            $this->setName(static::NAME);
+        }
+
+        $this->setDescription((string)static::DESCRIPTION);
 
         foreach ($this->defineOptions() as $option) {
-            call_user_func_array([$this, 'addOption'], $option);
+            \call_user_func_array([$this, 'addOption'], $option);
         }
 
         foreach ($this->defineArguments() as $argument) {
-            call_user_func_array([$this, 'addArgument'], $argument);
+            \call_user_func_array([$this, 'addArgument'], $argument);
+        }
+    }
+
+    protected function configureViaSignature(string $signature): void
+    {
+        $result = (new Parser())->parse($signature);
+
+        $this->setName($result->name);
+
+        foreach ($result->options as $option) {
+            $this->getDefinition()->addOption($option);
+        }
+
+        foreach ($result->arguments as $argument) {
+            $this->getDefinition()->addArgument($argument);
         }
     }
 

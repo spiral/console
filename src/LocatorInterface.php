@@ -1,25 +1,18 @@
 <?php
 
-/**
- * Spiral Framework.
- *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
- */
-
 declare(strict_types=1);
 
 namespace Spiral\Console;
 
 use Spiral\Console\Exception\LocatorException;
-use Symfony\Component\Console\Command\Command as CommandAlias;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 
 interface LocatorInterface
 {
     /**
      * Get all available command class names.
      *
-     * @return CommandAlias[]
+     * @return SymfonyCommand[]
      *
      * @throws LocatorException
      */
