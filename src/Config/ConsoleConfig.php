@@ -10,7 +10,6 @@ use Spiral\Console\Sequence\CommandSequence;
 use Spiral\Console\SequenceInterface;
 use Spiral\Core\CoreInterceptorInterface;
 use Spiral\Core\InjectableConfig;
-use Spiral\Interceptors\InterceptorInterface;
 
 final class ConsoleConfig extends InjectableConfig
 {
@@ -35,7 +34,7 @@ final class ConsoleConfig extends InjectableConfig
     }
 
     /**
-     * @return array<class-string<CoreInterceptorInterface|InterceptorInterface>>
+     * @return array<class-string<CoreInterceptorInterface>>
      */
     public function getInterceptors(): array
     {
