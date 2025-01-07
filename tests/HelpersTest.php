@@ -27,7 +27,7 @@ class HelpersTest extends BaseTestCase
             ->getOutput()
             ->fetch();
 
-        self::assertSame('false', $actual);
+        $this->assertSame('false', $actual);
 
         $output = new BufferedOutput();
         $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
@@ -35,27 +35,45 @@ class HelpersTest extends BaseTestCase
             ->getOutput()
             ->fetch();
 
-        self::assertSame('true', $actual);
+        $this->assertSame('true', $actual);
     }
 
     public function testSprintf(): void
     {
-        self::assertStringContainsString('hello world', $this->core->run('helper', ['helper' => 'sprintf'])->getOutput()->fetch());
+        $this->assertStringContainsString(
+            'hello world',
+            $this->core->run('helper', ['helper' => 'sprintf'])->getOutput()->fetch()
+        );
     }
 
     public function testWriteln(): void
     {
-        self::assertStringContainsString("\n", $this->core->run('helper', ['helper' => 'writeln'])->getOutput()->fetch());
+        $this->assertStringContainsString(
+            "\n",
+            $this->core->run('helper', ['helper' => 'writeln'])->getOutput()->fetch()
+        );
     }
 
     public function testTable(): void
     {
-        self::assertStringContainsString('id', $this->core->run('helper', ['helper' => 'table'])->getOutput()->fetch());
+        $this->assertStringContainsString(
+            'id',
+            $this->core->run('helper', ['helper' => 'table'])->getOutput()->fetch()
+        );
 
-        self::assertStringContainsString('value', $this->core->run('helper', ['helper' => 'table'])->getOutput()->fetch());
+        $this->assertStringContainsString(
+            'value',
+            $this->core->run('helper', ['helper' => 'table'])->getOutput()->fetch()
+        );
 
-        self::assertStringContainsString('1', $this->core->run('helper', ['helper' => 'table'])->getOutput()->fetch());
+        $this->assertStringContainsString(
+            '1',
+            $this->core->run('helper', ['helper' => 'table'])->getOutput()->fetch()
+        );
 
-        self::assertStringContainsString('true', $this->core->run('helper', ['helper' => 'table'])->getOutput()->fetch());
+        $this->assertStringContainsString(
+            'true',
+            $this->core->run('helper', ['helper' => 'table'])->getOutput()->fetch()
+        );
     }
 }

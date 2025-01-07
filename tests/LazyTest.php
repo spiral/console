@@ -25,9 +25,9 @@ class LazyTest extends BaseTestCase
         $commands = $locator->locateCommands();
         $command = reset($commands);
 
-        self::assertInstanceOf(LazyCommand::class, $command);
-        self::assertSame('lazy', $command->getName());
-        self::assertSame('Lazy description', $command->getDescription());
+        $this->assertInstanceOf(LazyCommand::class, $command);
+        $this->assertSame('lazy', $command->getName());
+        $this->assertSame('Lazy description', $command->getDescription());
     }
 
     public function testLazyCommandCreationInStaticLocator(): void
@@ -36,15 +36,15 @@ class LazyTest extends BaseTestCase
         $commands = $locator->locateCommands();
         $command = reset($commands);
 
-        self::assertInstanceOf(LazyCommand::class, $command);
-        self::assertSame('lazy', $command->getName());
-        self::assertSame('Lazy description', $command->getDescription());
+        $this->assertInstanceOf(LazyCommand::class, $command);
+        $this->assertSame('lazy', $command->getName());
+        $this->assertSame('Lazy description', $command->getDescription());
     }
 
     public function testLazyCommandExecution(): void
     {
         $core = $this->getCore($this->getStaticLocator([LazyLoadedCommand::class]));
         $output = $core->run('lazy');
-        self::assertSame('OK', $output->getOutput()->fetch());
+        $this->assertSame('OK', $output->getOutput()->fetch());
     }
 }

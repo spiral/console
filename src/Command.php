@@ -106,7 +106,7 @@ abstract class Command extends SymfonyCommand implements EventDispatcherAwareInt
                         ],
                         autowire: false,
                     ),
-                    function () use ($method): int {
+                    function () use ($method) {
                         $core = $this->buildCore();
                         $arguments = ['input' => $this->input, 'output' => $this->output, 'command' => $this];
 
