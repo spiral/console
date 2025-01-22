@@ -16,9 +16,15 @@ class CoreTest extends BaseTestCase
             TestCommand::class
         ]));
 
-        self::assertSame('Hello World - 0', $core->run('test')->getOutput()->fetch());
+        $this->assertSame(
+            'Hello World - 0',
+            $core->run('test')->getOutput()->fetch()
+        );
 
-        self::assertSame('Hello World - 1', $core->run('test')->getOutput()->fetch());
+        $this->assertSame(
+            'Hello World - 1',
+            $core->run('test')->getOutput()->fetch()
+        );
     }
 
     public function testStart(): void
@@ -32,8 +38,8 @@ class CoreTest extends BaseTestCase
         $core->start(new ArrayInput([]), $output);
         $output = $output->fetch();
 
-        self::assertStringContainsString('Spiral Framework', $output);
-        self::assertStringContainsString('Test Command', $output);
-        self::assertStringContainsString('test:user', $output);
+        $this->assertStringContainsString('Spiral Framework', $output);
+        $this->assertStringContainsString('Test Command', $output);
+        $this->assertStringContainsString('test:user', $output);
     }
 }

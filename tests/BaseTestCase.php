@@ -32,7 +32,7 @@ abstract class BaseTestCase extends TestCase
 
     protected Container $container;
 
-    protected function setUp(): void
+    public function setUp(): void
     {
         $this->container = new Container();
 
