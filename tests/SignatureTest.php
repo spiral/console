@@ -22,43 +22,28 @@ final class SignatureTest extends BaseTestCase
                         $option = $this->option('option');
 
                         if ($argument) {
-                            $this->write('argument : '.$argument);
+                            $this->write('argument : ' . $argument);
                         }
 
                         if ($option) {
-                            $this->write('option : '.$option);
+                            $this->write('option : ' . $option);
                         }
 
                         return 1;
                     }
                 },
-            ])
+            ]),
         );
 
-        $this->assertSame(
-            '',
-            $core->run(command: 'foo:bar')->getOutput()->fetch()
-        );
+        self::assertSame('', $core->run(command: 'foo:bar')->getOutput()->fetch());
 
-        $this->assertSame(
-            'argument : baz',
-            $core->run(command: 'foo:bar', input: ['arg' => 'baz'])->getOutput()->fetch()
-        );
+        self::assertSame('argument : baz', $core->run(command: 'foo:bar', input: ['arg' => 'baz'])->getOutput()->fetch());
 
-        $this->assertSame(
-            'option : baz',
-            $core->run(command: 'foo:bar', input: ['-o' => 'baz'])->getOutput()->fetch()
-        );
+        self::assertSame('option : baz', $core->run(command: 'foo:bar', input: ['-o' => 'baz'])->getOutput()->fetch());
 
-        $this->assertSame(
-            'option : baz',
-            $core->run(command: 'foo:bar', input: ['--option' => 'baz'])->getOutput()->fetch()
-        );
+        self::assertSame('option : baz', $core->run(command: 'foo:bar', input: ['--option' => 'baz'])->getOutput()->fetch());
 
-        $this->assertSame(
-            'argument : bazoption : baf',
-            $core->run(command: 'foo:bar', input: ['arg' => 'baz', '-o' => 'baf'])->getOutput()->fetch()
-        );
+        self::assertSame('argument : bazoption : baf', $core->run(command: 'foo:bar', input: ['arg' => 'baz', '-o' => 'baf'])->getOutput()->fetch());
     }
 
     public function testArrayableOptions(): void
@@ -70,48 +55,33 @@ final class SignatureTest extends BaseTestCase
 
                     public function perform(): int
                     {
-                        $argument = (array)$this->argument('arg');
-                        $option = (array)$this->option('option');
+                        $argument = (array) $this->argument('arg');
+                        $option = (array) $this->option('option');
 
                         if ($argument) {
-                            $this->write('argument : '.\implode(',', $argument));
+                            $this->write('argument : ' . \implode(',', $argument));
                         }
 
                         if ($option) {
-                            $this->write('option : '.\implode(',', $option));
+                            $this->write('option : ' . \implode(',', $option));
                         }
 
                         return 1;
                     }
                 },
-            ])
+            ]),
         );
 
-        $this->assertSame(
-            '',
-            $core->run(command: 'foo:bar')->getOutput()->fetch()
-        );
+        self::assertSame('', $core->run(command: 'foo:bar')->getOutput()->fetch());
 
-        $this->assertSame(
-            'argument : bar,baz,bak',
-            $core->run(command: 'foo:bar', input: new StringInput('foo:bar bar baz bak'))->getOutput()->fetch()
-        );
+        self::assertSame('argument : bar,baz,bak', $core->run(command: 'foo:bar', input: new StringInput('foo:bar bar baz bak'))->getOutput()->fetch());
 
-        $this->assertSame(
-            'option : far,faz',
-            $core->run(command: 'foo:bar', input: new StringInput('foo:bar -ofar --option=faz'))->getOutput()->fetch()
-        );
+        self::assertSame('option : far,faz', $core->run(command: 'foo:bar', input: new StringInput('foo:bar -ofar --option=faz'))->getOutput()->fetch());
 
-        $this->assertSame(
-            'option : baz',
-            $core->run(command: 'foo:bar', input: ['--option' => 'baz'])->getOutput()->fetch()
-        );
+        self::assertSame('option : baz', $core->run(command: 'foo:bar', input: ['--option' => 'baz'])->getOutput()->fetch());
 
-        $this->assertSame(
-            'argument : bar,baz,bakoption : far,faz',
-            $core->run(command: 'foo:bar', input: new StringInput('foo:bar bar baz bak -ofar --option=faz'))->getOutput(
-            )->fetch()
-        );
+        self::assertSame('argument : bar,baz,bakoption : far,faz', $core->run(command: 'foo:bar', input: new StringInput('foo:bar bar baz bak -ofar --option=faz'))->getOutput(
+        )->fetch());
     }
 
     public function testDescription(): void
@@ -133,11 +103,10 @@ final class SignatureTest extends BaseTestCase
                         return 1;
                     }
                 },
-            ])
+            ]),
         );
 
-        $this->assertStringStartsWith(
-            <<<'HELP'
+        self::assertStringStartsWith(<<<'HELP'
 Usage:
   foo:bar [options] [--] <foo> [<bar> [<baz>...]]
 
@@ -150,10 +119,7 @@ Options:
   -o, --id[=ID]         Id option description. (multiple values allowed)
   -Q, --quit            Quit option description.
       --naf[=NAF]       Naf option description. [default: "default"]
-HELP
-            ,
-            $core->run(command: 'help', input: ['command_name' => 'foo:bar'])->getOutput()->fetch()
-        );
+HELP, $core->run(command: 'help', input: ['command_name' => 'foo:bar'])->getOutput()->fetch());
     }
 
     public function testDescriptionFromConstant(): void
@@ -171,12 +137,9 @@ HELP
                         return self::SUCCESS;
                     }
                 },
-            ])
+            ]),
         );
 
-        $this->assertSame(
-            'baz',
-            $core->run(command: 'foo:bar')->getOutput()->fetch()
-        );
+        self::assertSame('baz', $core->run(command: 'foo:bar')->getOutput()->fetch());
     }
 }

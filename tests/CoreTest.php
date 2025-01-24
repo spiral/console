@@ -13,24 +13,18 @@ class CoreTest extends BaseTestCase
     public function testWelcome(): void
     {
         $core = $this->getCore($this->getStaticLocator([
-            TestCommand::class
+            TestCommand::class,
         ]));
 
-        $this->assertSame(
-            'Hello World - 0',
-            $core->run('test')->getOutput()->fetch()
-        );
+        self::assertSame('Hello World - 0', $core->run('test')->getOutput()->fetch());
 
-        $this->assertSame(
-            'Hello World - 1',
-            $core->run('test')->getOutput()->fetch()
-        );
+        self::assertSame('Hello World - 1', $core->run('test')->getOutput()->fetch());
     }
 
     public function testStart(): void
     {
         $core = $this->getCore($this->getStaticLocator([
-            TestCommand::class
+            TestCommand::class,
         ]));
 
         $output = new BufferedOutput();
@@ -38,8 +32,8 @@ class CoreTest extends BaseTestCase
         $core->start(new ArrayInput([]), $output);
         $output = $output->fetch();
 
-        $this->assertStringContainsString('Spiral Framework', $output);
-        $this->assertStringContainsString('Test Command', $output);
-        $this->assertStringContainsString('test:user', $output);
+        self::assertStringContainsString('Spiral Framework', $output);
+        self::assertStringContainsString('Test Command', $output);
+        self::assertStringContainsString('test:user', $output);
     }
 }

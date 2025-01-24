@@ -17,8 +17,8 @@ final class InterceptorTest extends BaseTestCase
 
     public const CONFIG = [
         'interceptors' => [
-            'foo'
-        ]
+            'foo',
+        ],
     ];
 
     public function testInterceptorShouldBeResolved(): void
@@ -27,22 +27,28 @@ final class InterceptorTest extends BaseTestCase
 
         $interceptor->shouldReceive('process')
             ->once()
-            ->withArgs(fn(string $controller, string $action, array $parameters, CoreInterface $core) => $controller === TestCommand::class
-                && $action === 'perform'
-                && $parameters['input'] instanceof InputInterface
-                && $parameters['output'] instanceof OutputInterface
-                && $parameters['command'] instanceof TestCommand)
-            ->andReturnUsing(
-                fn(
+            ->withArgs(
+                static fn(
                     string $controller,
                     string $action,
                     array $parameters,
                     CoreInterface $core,
-                ) => $core->callAction($controller, $action, $parameters),
+                ): bool => $controller === TestCommand::class
+                    && $action === 'perform'
+                    && $parameters['input'] instanceof InputInterface
+                    && $parameters['output'] instanceof OutputInterface
+                    && $parameters['command'] instanceof TestCommand,
+            )->andReturnUsing(
+                static fn(
+                    string $controller,
+                    string $action,
+                    array $parameters,
+                    CoreInterface $core,
+                ): mixed => $core->callAction($controller, $action, $parameters),
             );
 
         $core = $this->getCore($this->getStaticLocator([
-            TestCommand::class
+            TestCommand::class,
         ]));
 
         $core->run('test');

@@ -12,15 +12,13 @@ use Spiral\Tests\Console\Fixtures\FailedCommand;
 use Spiral\Tests\Console\Fixtures\HelperCommand;
 use Spiral\Tests\Console\Fixtures\TestCommand;
 use Spiral\Tests\Console\Fixtures\UpdateClass;
-use Throwable;
 
 class UpdateTest extends BaseTestCase
 {
     public const TOKENIZER_CONFIG = [
-        'directories' => [__DIR__.'/../src/Command', __DIR__.'/Fixtures/'],
+        'directories' => [__DIR__ . '/../src/Command', __DIR__ . '/Fixtures/'],
         'exclude' => [],
     ];
-
     public const CONFIG = [
         'locateCommands' => false,
         'commands' => [],
@@ -29,9 +27,9 @@ class UpdateTest extends BaseTestCase
                 ['command' => 'test', 'header' => 'Test Command'],
                 ['command' => 'helper', 'options' => ['helper' => 'writeln'], 'footer' => 'Good!'],
                 ['invoke' => [UpdateClass::class, 'do']],
-                ['invoke' => UpdateClass::class.'::do'],
+                ['invoke' => UpdateClass::class . '::do'],
                 'Spiral\Tests\Console\ok',
-                ['invoke' => UpdateClass::class.'::err'],
+                ['invoke' => UpdateClass::class . '::err'],
             ],
         ],
     ];
@@ -43,7 +41,7 @@ class UpdateTest extends BaseTestCase
                 HelperCommand::class,
                 TestCommand::class,
                 UpdateCommand::class,
-            ])
+            ]),
         );
 
         $this->container->bind(Console::class, $core);
@@ -67,14 +65,11 @@ All done!
 
 text;
 
-        $this->assertSame(
-            \str_replace("\r", '', $expected),
-            \str_replace("\r", '', $actual)
-        );
+        self::assertSame(\str_replace("\r", '', $expected), \str_replace("\r", '', $actual));
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function testBreakFailure(): void
     {
@@ -83,14 +78,14 @@ text;
         $output = $core->run('update', ['--break' => true]);
         $result = $output->getOutput()->fetch();
 
-        $this->assertStringContainsString('Unhandled failed command error at', $result);
-        $this->assertStringContainsString('Aborting.', $result);
-        $this->assertStringNotContainsString('Unhandled another failed command error at', $result);
-        $this->assertEquals(1, $output->getCode());
+        self::assertStringContainsString('Unhandled failed command error at', $result);
+        self::assertStringContainsString('Aborting.', $result);
+        self::assertStringNotContainsString('Unhandled another failed command error at', $result);
+        self::assertSame(1, $output->getCode());
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function testIgnoreAndBreakFailure(): void
     {
@@ -99,14 +94,14 @@ text;
         $output = $core->run('update', ['--ignore' => true, '--break' => true]);
         $result = $output->getOutput()->fetch();
 
-        $this->assertStringContainsString('Unhandled failed command error at', $result);
-        $this->assertStringNotContainsString('Aborting.', $result);
-        $this->assertStringContainsString('Unhandled another failed command error at', $result);
-        $this->assertEquals(0, $output->getCode());
+        self::assertStringContainsString('Unhandled failed command error at', $result);
+        self::assertStringNotContainsString('Aborting.', $result);
+        self::assertStringContainsString('Unhandled another failed command error at', $result);
+        self::assertSame(0, $output->getCode());
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function testNoBreakFailure(): void
     {
@@ -116,10 +111,10 @@ text;
         $output = $core->run('update');
         $result = $output->getOutput()->fetch();
 
-        $this->assertStringContainsString('Unhandled failed command error at', $result);
-        $this->assertStringNotContainsString('Aborting.', $result);
-        $this->assertStringContainsString('Unhandled another failed command error at', $result);
-        $this->assertEquals(1, $output->getCode());
+        self::assertStringContainsString('Unhandled failed command error at', $result);
+        self::assertStringNotContainsString('Aborting.', $result);
+        self::assertStringContainsString('Unhandled another failed command error at', $result);
+        self::assertSame(1, $output->getCode());
     }
 
     private function bindFailure(): Console
@@ -131,7 +126,7 @@ text;
                 UpdateCommand::class,
                 FailedCommand::class,
                 AnotherFailedCommand::class,
-            ])
+            ]),
         );
         $this->container->bind(
             ConsoleConfig::class,
@@ -144,7 +139,7 @@ text;
                         ['command' => 'failed:another', 'header' => 'Another failed Command'],
                     ],
                 ],
-            ])
+            ]),
         );
         $this->container->bind(Console::class, $core);
 
