@@ -13,8 +13,9 @@ use Spiral\Console\Configurator\Attribute\Parser;
 final class AttributeBasedConfigurator implements ConfiguratorInterface
 {
     public function __construct(
-        private readonly Parser $parser,
-    ) {}
+        private readonly Parser $parser
+    ) {
+    }
 
     public function canConfigure(Command $command, \ReflectionClass $reflection): bool
     {
@@ -28,7 +29,6 @@ final class AttributeBasedConfigurator implements ConfiguratorInterface
         $command->setName($result->name);
         $command->setDescription($result->description ?? (string) $reflection->getConstant('DESCRIPTION'));
         $command->setHelp((string) $result->help);
-        $command->setAliases($result->aliases);
 
         foreach ($result->options as $option) {
             $command->getDefinition()->addOption($option);

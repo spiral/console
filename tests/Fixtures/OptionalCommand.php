@@ -13,14 +13,14 @@ class OptionalCommand extends Command
     public const NAME = 'optional';
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public const OPTIONS = [
-        ['option', 'o', InputOption::VALUE_NONE, 'Use option'],
+        ['option', 'o', InputOption::VALUE_NONE, 'Use option']
     ];
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public const ARGUMENTS = [
         ['arg', InputArgument::OPTIONAL, 'Value'],

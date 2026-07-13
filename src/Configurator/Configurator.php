@@ -15,8 +15,9 @@ final class Configurator
      * @param ConfiguratorInterface[] $configurators
      */
     public function __construct(
-        private readonly array $configurators = [],
-    ) {}
+        private readonly array $configurators = []
+    ) {
+    }
 
     public function configure(Command $command, \ReflectionClass $reflection): void
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\Tests\Console\Fixtures;
 
+use Exception;
 use Spiral\Console\Command;
 
 class LazyLoadedCommand extends Command

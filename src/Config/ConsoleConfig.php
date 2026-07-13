@@ -10,7 +10,6 @@ use Spiral\Console\Sequence\CommandSequence;
 use Spiral\Console\SequenceInterface;
 use Spiral\Core\CoreInterceptorInterface;
 use Spiral\Core\InjectableConfig;
-use Spiral\Interceptors\InterceptorInterface;
 
 final class ConsoleConfig extends InjectableConfig
 {
@@ -35,7 +34,7 @@ final class ConsoleConfig extends InjectableConfig
     }
 
     /**
-     * @return array<class-string<CoreInterceptorInterface|InterceptorInterface>>
+     * @return array<class-string<CoreInterceptorInterface>>
      */
     public function getInterceptors(): array
     {
@@ -68,12 +67,13 @@ final class ConsoleConfig extends InjectableConfig
      */
     public function getSequence(string $name): \Generator
     {
-        $sequence = (array) ($this->config['sequences'][$name] ?? []);
+        $sequence = (array)($this->config['sequences'][$name] ?? []);
 
         foreach ($sequence as $item) {
             yield $this->parseSequence($item);
         }
     }
+
 
     /**
      * Get list of configure sequences.
@@ -124,7 +124,7 @@ final class ConsoleConfig extends InjectableConfig
                 $item['command'],
                 $item['options'] ?? [],
                 $item['header'] ?? '',
-                $item['footer'] ?? '',
+                $item['footer'] ?? ''
             );
         }
 
@@ -132,15 +132,15 @@ final class ConsoleConfig extends InjectableConfig
             return new CallableSequence(
                 $item['invoke'],
                 $item['header'] ?? '',
-                $item['footer'] ?? '',
+                $item['footer'] ?? ''
             );
         }
 
         throw new ConfigException(
             \sprintf(
                 'Unable to parse sequence `%s`.',
-                \json_encode($item, JSON_THROW_ON_ERROR),
-            ),
+                \json_encode($item, JSON_THROW_ON_ERROR)
+            )
         );
     }
 }

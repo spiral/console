@@ -11,6 +11,12 @@ final class ParserTest extends TestCase
 {
     private Parser $parser;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->parser = new Parser();
+    }
+
     public function testParse(): void
     {
         // Only name
@@ -216,11 +222,5 @@ final class ParserTest extends TestCase
         $this->assertSame('baz', $result->options[0]->getName());
         $this->assertFalse($result->options[0]->acceptValue());
         $this->assertSame('Option description.', $result->options[0]->getDescription());
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->parser = new Parser();
     }
 }

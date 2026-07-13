@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\Console\Configurator\Signature;
 
+use InvalidArgumentException;
 use Spiral\Console\Configurator\CommandDefinition;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,7 +18,7 @@ final class Parser
     /**
      * Parse the given console command definition into an array.
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function parse(string $signature): CommandDefinition
     {
@@ -35,12 +36,12 @@ final class Parser
     /**
      * Extract the name of the command from the expression.
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function parseName(string $signature): string
     {
         if (!\preg_match('/\S+/', $signature, $matches)) {
-            throw new \InvalidArgumentException('Unable to determine command name from signature.');
+            throw new InvalidArgumentException('Unable to determine command name from signature.');
         }
 
         return $matches[0];
@@ -57,7 +58,7 @@ final class Parser
         $options = [];
 
         foreach ($tokens as $token) {
-            if (\preg_match('/-{2,}(.*)/', (string) $token, $matches)) {
+            if (\preg_match('/-{2,}(.*)/', $token, $matches)) {
                 $options[] = $this->parseOption($matches[1]);
             } else {
                 $arguments[] = $this->parseArgument($token);
@@ -79,34 +80,34 @@ final class Parser
             \str_ends_with($token, '[]?') => new InputArgument(
                 \rtrim($token, '[]?'),
                 InputArgument::IS_ARRAY,
-                $description,
+                $description
             ),
             \str_ends_with($token, '[]') => new InputArgument(
                 \rtrim($token, '[]'),
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                $description,
+                $description
             ),
             \str_ends_with($token, '?') => new InputArgument(
                 \rtrim($token, '?'),
                 InputArgument::OPTIONAL,
-                $description,
+                $description
             ),
-            (bool) \preg_match('/(.+)\[\]\=(.+)/', $token, $matches) => new InputArgument(
+            (bool)\preg_match('/(.+)\[\]\=(.+)/', $token, $matches) => new InputArgument(
                 $matches[1],
                 InputArgument::IS_ARRAY,
                 $description,
-                \preg_split('/,\s?/', $matches[2]),
+                \preg_split('/,\s?/', $matches[2])
             ),
-            (bool) \preg_match('/(.+)\=(.+)?/', $token, $matches) => new InputArgument(
+            (bool)\preg_match('/(.+)\=(.+)?/', $token, $matches) => new InputArgument(
                 $matches[1],
                 InputArgument::OPTIONAL,
                 $description,
-                $matches[2] ?? null,
+                $matches[2] ?? null
             ),
             default => new InputArgument(
                 $token,
                 InputArgument::REQUIRED,
-                $description,
+                $description
             ),
         };
     }
@@ -130,33 +131,33 @@ final class Parser
                 \rtrim($token, '[]='),
                 $shortcut,
                 InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                $description,
+                $description
             ),
             \str_ends_with($token, '=') => new InputOption(
                 \rtrim($token, '='),
                 $shortcut,
                 InputOption::VALUE_OPTIONAL,
-                $description,
+                $description
             ),
-            (bool) \preg_match('/(.+)\[\]\=(.+)/', $token, $matches) => new InputOption(
+            (bool)\preg_match('/(.+)\[\]\=(.+)/', $token, $matches) => new InputOption(
                 $matches[1],
                 $shortcut,
                 InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
                 $description,
-                \preg_split('/,\s?/', $matches[2]),
+                \preg_split('/,\s?/', $matches[2])
             ),
-            (bool) \preg_match('/(.+)\=(.+)/', $token, $matches) => new InputOption(
+            (bool)\preg_match('/(.+)\=(.+)/', $token, $matches) => new InputOption(
                 $matches[1],
                 $shortcut,
                 InputOption::VALUE_OPTIONAL,
                 $description,
-                $matches[2],
+                $matches[2]
             ),
             default => new InputOption(
                 $token,
                 $shortcut,
                 InputOption::VALUE_NONE,
-                $description,
+                $description
             ),
         };
     }
@@ -173,7 +174,7 @@ final class Parser
     {
         $token = \trim($token);
 
-        $parts = \array_map(trim(...), \explode(':', $token, 2));
+        $parts = \array_map('trim', \explode(':', $token, 2));
 
         return \count($parts) === 2 ? $parts : [$token, ''];
     }

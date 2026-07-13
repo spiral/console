@@ -81,7 +81,7 @@ trait HelpersTrait
     /**
      * Asks a question.
      */
-    protected function ask(string $question, ?string $default = null): mixed
+    protected function ask(string $question, string $default = null): mixed
     {
         return $this->output->ask($question, $default);
     }
@@ -93,8 +93,8 @@ trait HelpersTrait
         string $question,
         array $choices,
         mixed $default = null,
-        ?int $attempts = null,
-        bool $multiselect = false,
+        int $attempts = null,
+        bool $multiselect = false
     ): mixed {
         $question = new ChoiceQuestion($question, $choices, $default);
 
@@ -166,7 +166,7 @@ trait HelpersTrait
     protected function alert(string $string): void
     {
         $length = \mb_strlen(\strip_tags($string)) + 12;
-        $stringLines = \explode("\n", \wordwrap($string, 300));
+        $stringLines = explode("\n", wordwrap($string, 300));
 
         $this->comment(\str_repeat('*', $length));
         foreach ($stringLines as $line) {
@@ -180,12 +180,12 @@ trait HelpersTrait
     /**
      * Write a string as standard output.
      */
-    protected function line(string $string, ?string $style = null): void
+    protected function line(string $string, string $style = null): void
     {
         $styled = $style ? "<$style>$string</$style>" : $string;
 
         $this->writeln(
-            messages: $styled,
+            messages: $styled
         );
     }
 
@@ -204,7 +204,7 @@ trait HelpersTrait
     {
         $this->write(
             messages: \sprintf($format, ...$args),
-            newline: false,
+            newline: false
         );
     }
 

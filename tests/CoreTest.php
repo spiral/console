@@ -8,23 +8,29 @@ use Spiral\Tests\Console\Fixtures\TestCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-final class CoreTest extends BaseTestCase
+class CoreTest extends BaseTestCase
 {
     public function testWelcome(): void
     {
         $core = $this->getCore($this->getStaticLocator([
-            TestCommand::class,
+            TestCommand::class
         ]));
 
-        self::assertSame('Hello World - 0', $core->run('test')->getOutput()->fetch());
+        $this->assertSame(
+            'Hello World - 0',
+            $core->run('test')->getOutput()->fetch()
+        );
 
-        self::assertSame('Hello World - 1', $core->run('test')->getOutput()->fetch());
+        $this->assertSame(
+            'Hello World - 1',
+            $core->run('test')->getOutput()->fetch()
+        );
     }
 
     public function testStart(): void
     {
         $core = $this->getCore($this->getStaticLocator([
-            TestCommand::class,
+            TestCommand::class
         ]));
 
         $output = new BufferedOutput();
@@ -32,8 +38,8 @@ final class CoreTest extends BaseTestCase
         $core->start(new ArrayInput([]), $output);
         $output = $output->fetch();
 
-        self::assertStringContainsString('Spiral Framework', $output);
-        self::assertStringContainsString('Test Command', $output);
-        self::assertStringContainsString('test:user', $output);
+        $this->assertStringContainsString('Spiral Framework', $output);
+        $this->assertStringContainsString('Test Command', $output);
+        $this->assertStringContainsString('test:user', $output);
     }
 }

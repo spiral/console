@@ -12,6 +12,7 @@ final class Question
 {
     public function __construct(
         public readonly string $question,
-        public readonly ?string $argument = null,
-    ) {}
+        public readonly ?string $argument = null
+    ) {
+    }
 }

@@ -18,13 +18,18 @@ final class OptionsTest extends TestCase
 {
     private Parser $parser;
 
+    protected function setUp(): void
+    {
+        $this->parser = new Parser((new Factory())->create());
+    }
+
     public function testRequired(): void
     {
         $result = $this->parser->parse(new \ReflectionClass(
             new #[AsCommand(name: 'foo')] class {
                 #[Option(mode: InputOption::VALUE_REQUIRED)]
                 private int $option;
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -42,7 +47,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(mode: InputOption::VALUE_OPTIONAL)]
                 private string $option = 'some';
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -60,7 +65,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(mode: InputOption::VALUE_OPTIONAL)]
                 private ?string $option;
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -78,7 +83,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(name: 'customName', mode: InputOption::VALUE_OPTIONAL)]
                 private ?string $option;
-            },
+            }
         ));
 
         $this->assertSame('customName', $result->options[0]->getName());
@@ -96,7 +101,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(shortcut: 't', mode: InputOption::VALUE_OPTIONAL)]
                 private ?string $option;
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -114,7 +119,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(description: 'Some description', mode: InputOption::VALUE_OPTIONAL)]
                 private ?string $option;
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -132,7 +137,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(mode: InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY)]
                 private array $option = [];
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -150,7 +155,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(mode: InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY)]
                 private array $option = [];
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -168,7 +173,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(mode: InputOption::VALUE_NEGATABLE)]
                 private bool $option;
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -186,7 +191,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(mode: InputOption::VALUE_NONE)]
                 private bool $option;
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -210,7 +215,7 @@ final class OptionsTest extends TestCase
 
                 #[Option]
                 private string $string;
-            },
+            }
         ));
 
         $this->assertTrue($result->options[0]->isValueRequired());
@@ -238,7 +243,7 @@ final class OptionsTest extends TestCase
 
                 #[Option]
                 private ?string $string;
-            },
+            }
         ));
 
         $this->assertFalse($result->options[0]->isValueRequired());
@@ -269,7 +274,7 @@ final class OptionsTest extends TestCase
 
                 #[Option]
                 private string $string = 'foo';
-            },
+            }
         ));
 
         $this->assertFalse($result->options[0]->isValueRequired());
@@ -294,7 +299,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option]
                 private array $array;
-            },
+            }
         ));
 
         $this->assertTrue($result->options[0]->isValueRequired());
@@ -308,7 +313,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option]
                 private ?array $array;
-            },
+            }
         ));
 
         $this->assertFalse($result->options[0]->isValueRequired());
@@ -323,7 +328,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option]
                 private array $array = [];
-            },
+            }
         ));
 
         $this->assertFalse($result->options[0]->isValueRequired());
@@ -338,13 +343,13 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(mode: InputOption::VALUE_REQUIRED, suggestedValues: [1, 0])]
                 private int $option;
-            },
+            }
         ));
 
         $suggestions = new CompletionSuggestions();
         $result->options[0]->complete(
             new CompletionInput(),
-            $suggestions,
+            $suggestions
         );
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -364,7 +369,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option(mode: InputOption::VALUE_OPTIONAL)]
                 private int|\stdClass $option;
-            },
+            }
         ));
 
         $this->assertSame('option', $result->options[0]->getName());
@@ -383,7 +388,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option]
                 private \stdClass $option;
-            },
+            }
         ));
     }
 
@@ -394,7 +399,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option]
                 private \stdClass&\Traversable $option;
-            },
+            }
         ));
     }
 
@@ -405,12 +410,7 @@ final class OptionsTest extends TestCase
             new #[AsCommand(name: 'foo')] class {
                 #[Option]
                 private object $object;
-            },
+            }
         ));
-    }
-
-    protected function setUp(): void
-    {
-        $this->parser = new Parser((new Factory())->create());
     }
 }

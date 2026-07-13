@@ -14,6 +14,7 @@ final class CommandFinished
         public readonly Command $command,
         public readonly int $exitCode,
         public readonly InputInterface $input,
-        public readonly OutputInterface $output,
-    ) {}
+        public readonly OutputInterface $output
+    ) {
+    }
 }

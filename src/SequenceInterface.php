@@ -17,6 +17,7 @@ interface SequenceInterface
     /**
      * Execute sequence command or function.
      *
+     *
      * @throws \Exception
      */
     public function execute(ContainerInterface $container, OutputInterface $output): void;

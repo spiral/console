@@ -21,10 +21,10 @@ final class PromptArgumentsTest extends BaseTestCase
     {
         $input = $this->createMock(InputInterface::class);
         $input
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('getArgument');
         $input
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('setArgument');
 
         $promptArguments = new PromptArguments();
@@ -32,7 +32,7 @@ final class PromptArgumentsTest extends BaseTestCase
         $command->setDefinition(new InputDefinition([new InputArgument('command', InputArgument::REQUIRED)]));
 
 
-        $promptArguments->promptMissedArguments($command, $input, $this->createStub(OutputInterface::class));
+        $promptArguments->promptMissedArguments($command, $input, $this->createMock(OutputInterface::class));
     }
 
     public function testPromptArgumentWithDefaultQuestion(): void
@@ -40,11 +40,11 @@ final class PromptArgumentsTest extends BaseTestCase
         $promptArguments = new PromptArguments();
         $method = (new \ReflectionClass($promptArguments))->getMethod('getQuestion');
 
-        self::assertSame('Please provide a value for the `email` argument', $method->invoke(
+        $this->assertSame('Please provide a value for the `email` argument', $method->invoke(
             $promptArguments,
             new WithNameCommand(),
-            new InputArgument('email', InputArgument::REQUIRED),
-        ));
+            new InputArgument('email', InputArgument::REQUIRED))
+        );
     }
 
     public function testPromptArgumentWithQuestionOnClass(): void
@@ -52,16 +52,20 @@ final class PromptArgumentsTest extends BaseTestCase
         $promptArguments = new PromptArguments();
         $method = (new \ReflectionClass($promptArguments))->getMethod('getQuestion');
 
-        self::assertSame('This is question from the attribute', $method->invoke(
+        $this->assertSame('This is question from the attribute', $method->invoke(
             $promptArguments,
-            new #[AsCommand(name: 'foo'), Question(question: 'This is question from the attribute', argument: 'email')] class extends Command {
+            new #[
+                AsCommand(name: 'foo'),
+                Question(question: 'This is question from the attribute', argument: 'email')
+            ] class extends Command
+            {
                 public function perform(): int
                 {
                     return self::SUCCESS;
                 }
             },
-            new InputArgument('email', InputArgument::REQUIRED),
-        ));
+            new InputArgument('email', InputArgument::REQUIRED))
+        );
     }
 
     public function testPromptArgumentWithQuestionOnClassWithWrongArgumentShouldBeSkipped(): void
@@ -69,16 +73,20 @@ final class PromptArgumentsTest extends BaseTestCase
         $promptArguments = new PromptArguments();
         $method = (new \ReflectionClass($promptArguments))->getMethod('getQuestion');
 
-        self::assertSame('Please provide a value for the `email` argument', $method->invoke(
+        $this->assertSame('Please provide a value for the `email` argument', $method->invoke(
             $promptArguments,
-            new #[AsCommand(name: 'foo'), Question(question: 'This is question from the attribute', argument: 'foo')] class extends Command {
+            new #[
+                AsCommand(name: 'foo'),
+                Question(question: 'This is question from the attribute', argument: 'foo')
+            ] class extends Command
+            {
                 public function perform(): int
                 {
                     return self::SUCCESS;
                 }
             },
-            new InputArgument('email', InputArgument::REQUIRED),
-        ));
+            new InputArgument('email', InputArgument::REQUIRED))
+        );
     }
 
     public function testPromptArgumentWithQuestionOnProperty(): void
@@ -86,19 +94,20 @@ final class PromptArgumentsTest extends BaseTestCase
         $promptArguments = new PromptArguments();
         $method = (new \ReflectionClass($promptArguments))->getMethod('getQuestion');
 
-        self::assertSame('This is question from the attribute on the property', $method->invoke(
+        $this->assertSame('This is question from the attribute on the property', $method->invoke(
             $promptArguments,
-            new #[AsCommand(name: 'foo')] class extends Command {
+            new #[AsCommand(name: 'foo')] class extends Command
+            {
                 #[Question(question: 'This is question from the attribute on the property')]
-                private readonly string $email;
+                private string $email;
 
                 public function perform(): int
                 {
                     return self::SUCCESS;
                 }
             },
-            new InputArgument('email', InputArgument::REQUIRED),
-        ));
+            new InputArgument('email', InputArgument::REQUIRED))
+        );
     }
 
     public function testPromptArgumentWithQuestionOnDifferentPropertyShouldBeSkipped(): void
@@ -106,21 +115,22 @@ final class PromptArgumentsTest extends BaseTestCase
         $promptArguments = new PromptArguments();
         $method = (new \ReflectionClass($promptArguments))->getMethod('getQuestion');
 
-        self::assertSame('Please provide a value for the `email` argument', $method->invoke(
+        $this->assertSame('Please provide a value for the `email` argument', $method->invoke(
             $promptArguments,
-            new #[AsCommand(name: 'foo')] class extends Command {
-                private readonly string $email;
+            new #[AsCommand(name: 'foo')] class extends Command
+            {
+                private string $email;
 
                 #[Question(question: 'This is question from the attribute on the property')]
-                private readonly string $password;
+                private string $password;
 
                 public function perform(): int
                 {
                     return self::SUCCESS;
                 }
             },
-            new InputArgument('email', InputArgument::REQUIRED),
-        ));
+            new InputArgument('email', InputArgument::REQUIRED))
+        );
     }
 
     public function testPromptArgumentException(): void
@@ -131,13 +141,17 @@ final class PromptArgumentsTest extends BaseTestCase
         $this->expectException(ConsoleException::class);
         $method->invoke(
             $promptArguments,
-            new #[AsCommand(name: 'foo'), Question(question: 'Bar')] class extends Command {
+            new #[
+                AsCommand(name: 'foo'),
+                Question(question: 'Bar')
+            ] class extends Command
+            {
                 public function perform(): int
                 {
                     return self::SUCCESS;
                 }
             },
-            new InputArgument('email', InputArgument::REQUIRED),
+            new InputArgument('email', InputArgument::REQUIRED)
         );
     }
 }

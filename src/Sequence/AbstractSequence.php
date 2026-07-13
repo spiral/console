@@ -11,8 +11,9 @@ abstract class AbstractSequence implements SequenceInterface
 {
     public function __construct(
         private readonly string $header,
-        private readonly string $footer,
-    ) {}
+        private readonly string $footer
+    ) {
+    }
 
     public function writeHeader(OutputInterface $output): void
     {
