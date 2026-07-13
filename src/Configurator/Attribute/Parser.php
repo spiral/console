@@ -23,9 +23,8 @@ use Symfony\Component\Console\Input\InputOption;
 final class Parser
 {
     public function __construct(
-        private readonly ReaderInterface $reader = new AttributeReader()
-    ) {
-    }
+        private readonly ReaderInterface $reader = new AttributeReader(),
+    ) {}
 
     public function hasCommandAttribute(\ReflectionClass $reflection): bool
     {
@@ -46,7 +45,8 @@ final class Parser
             arguments: $this->parseArguments($reflection),
             options: $this->parseOptions($reflection),
             description: $attribute->description,
-            help: $attribute instanceof AsCommand ? $attribute->help : null
+            help: $attribute instanceof AsCommand ? $attribute->help : null,
+            aliases: $attribute instanceof AsCommand ? $attribute->aliases : [],
         );
     }
 
@@ -63,7 +63,7 @@ final class Parser
             if ($input->hasArgument($attribute->name ?? $property->getName())) {
                 $property->setValue(
                     $command,
-                    $this->typecast($input->getArgument($attribute->name ?? $property->getName()), $property)
+                    $this->typecast($input->getArgument($attribute->name ?? $property->getName()), $property),
                 );
             }
         }
@@ -102,7 +102,7 @@ final class Parser
                 $isArray && !$isOptional => InputArgument::IS_ARRAY | InputArgument::REQUIRED,
                 $isArray && $isOptional => InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
                 $isOptional => InputArgument::OPTIONAL,
-                default => InputArgument::REQUIRED
+                default => InputArgument::REQUIRED,
             };
 
             $argument = new InputArgument(
@@ -110,7 +110,7 @@ final class Parser
                 mode: $mode,
                 description: (string) $attribute->description,
                 default: $property->hasDefaultValue() ? $property->getDefaultValue() : null,
-                suggestedValues: $attribute->suggestedValues
+                suggestedValues: $attribute->suggestedValues,
             );
 
             if ($arrayArgument !== null && $isArray) {
@@ -151,7 +151,7 @@ final class Parser
             if ($mode === InputOption::VALUE_NONE || $mode === InputOption::VALUE_NEGATABLE) {
                 if ($type->getName() !== 'bool') {
                     throw new ConfiguratorException(
-                        'Options properties with mode `VALUE_NONE` or `VALUE_NEGATABLE` must be bool!'
+                        'Options properties with mode `VALUE_NONE` or `VALUE_NEGATABLE` must be bool!',
                     );
                 }
             }
@@ -164,7 +164,7 @@ final class Parser
                 mode: $mode,
                 description: (string) $attribute->description,
                 default: $hasDefaultValue ? $property->getDefaultValue() : null,
-                suggestedValues: $attribute->suggestedValues
+                suggestedValues: $attribute->suggestedValues,
             );
         }
 
@@ -188,7 +188,7 @@ final class Parser
             } catch (\Throwable) {
                 throw new ConfiguratorException(\sprintf('Wrong option value. Allowed options: `%s`.', \implode(
                     '`, `',
-                    \array_map(static fn (\BackedEnum $item): string => (string) $item->value, $enum::cases())
+                    \array_map(static fn(\BackedEnum $item): string => (string) $item->value, $enum::cases()),
                 )));
             }
         }
@@ -199,7 +199,7 @@ final class Parser
             'bool' => (bool) $value,
             'float' => (float) $value,
             'array' => (array) $value,
-            default => $value
+            default => $value,
         };
     }
 
@@ -207,7 +207,7 @@ final class Parser
     {
         if (!$property->hasType()) {
             throw new ConfiguratorException(
-                \sprintf('Please, specify the type for the `%s` property!', $property->getName())
+                \sprintf('Please, specify the type for the `%s` property!', $property->getName()),
             );
         }
 
@@ -237,7 +237,7 @@ final class Parser
     }
 
     /**
-     * @return positive-int
+     * @return int<0, 31>
      */
     private function guessOptionMode(\ReflectionNamedType $type, \ReflectionProperty $property): int
     {
@@ -248,7 +248,7 @@ final class Parser
             $type->getName() === 'array' && $isOptional => InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
             $type->getName() === 'array' && !$isOptional => InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
             $type->allowsNull() || $property->hasDefaultValue() => InputOption::VALUE_OPTIONAL,
-            default => InputOption::VALUE_REQUIRED
+            default => InputOption::VALUE_REQUIRED,
         };
     }
 }

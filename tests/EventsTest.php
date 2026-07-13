@@ -27,11 +27,11 @@ final class EventsTest extends BaseTestCase
 
         $core = $this->getCore(
             locator: $this->getStaticLocator([new TestCommand()]),
-            eventDispatcher: $dispatcher
+            eventDispatcher: $dispatcher,
         );
 
         $core->run('test');
 
-        $this->assertTrue(true);
+        self::assertTrue(true);
     }
 }

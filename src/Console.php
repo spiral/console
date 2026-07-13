@@ -8,7 +8,9 @@ use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Spiral\Console\Config\ConsoleConfig;
 use Spiral\Console\Exception\LocatorException;
+use Spiral\Core\Attribute\Proxy;
 use Spiral\Core\Container;
+use Spiral\Core\Scope;
 use Spiral\Core\ScopeInterface;
 use Spiral\Events\EventDispatcherAwareInterface;
 use Symfony\Component\Console\Application;
@@ -22,6 +24,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as SymfonyEventDispatcherInterface;
 
+#[\Spiral\Core\Attribute\Scope('console')]
 final class Console
 {
     // Undefined response code for command (errors). See below.
@@ -32,11 +35,10 @@ final class Console
     public function __construct(
         private readonly ConsoleConfig $config,
         private readonly ?LocatorInterface $locator = null,
-        private readonly ContainerInterface $container = new Container(),
+        #[Proxy] private readonly ContainerInterface $container = new Container(),
         private readonly ScopeInterface $scope = new Container(),
-        private readonly ?EventDispatcherInterface $dispatcher = null
-    ) {
-    }
+        private readonly ?EventDispatcherInterface $dispatcher = null,
+    ) {}
 
     /**
      * Run console application.
@@ -45,14 +47,11 @@ final class Console
      */
     public function start(InputInterface $input = new ArgvInput(), OutputInterface $output = new ConsoleOutput()): int
     {
-        return $this->scope->runScope(
-            [],
-            fn () => $this->run(
-                $input->getFirstArgument() ?? 'list',
-                $input,
-                $output
-            )->getCode()
-        );
+        return $this->run(
+            $input->getFirstArgument() ?? 'list',
+            $input,
+            $output,
+        )->getCode();
     }
 
     /**
@@ -64,7 +63,7 @@ final class Console
     public function run(
         ?string $command,
         array|InputInterface $input = [],
-        OutputInterface $output = new BufferedOutput()
+        OutputInterface $output = new BufferedOutput(),
     ): CommandOutput {
         $input = \is_array($input) ? new ArrayInput($input) : $input;
 
@@ -74,10 +73,18 @@ final class Console
             $input = new InputProxy($input, ['firstArgument' => $command]);
         }
 
-        $code = $this->scope->runScope([
-            InputInterface::class => $input,
-            OutputInterface::class => $output,
-        ], fn () => $this->getApplication()->doRun($input, $output));
+        /**
+         * @psalm-suppress InvalidArgument
+         */
+        $code = $this->scope->runScope(
+            new Scope(
+                bindings: [
+                    InputInterface::class => $input,
+                    OutputInterface::class => $output,
+                ],
+            ),
+            fn(): int => $this->getApplication()->doRun($input, $output),
+        );
 
         return new CommandOutput($code ?? self::CODE_NONE, $output);
     }
@@ -108,7 +115,7 @@ final class Console
         $static = new StaticLocator(
             $this->config->getCommands(),
             $this->config->getInterceptors(),
-            $this->container
+            $this->container,
         );
 
         $this->addCommands($static->locateCommands());
@@ -119,6 +126,9 @@ final class Console
     private function addCommands(iterable $commands): void
     {
         $interceptors = $this->config->getInterceptors();
+        $add = \method_exists($this->application, 'addCommand')
+            ? $this->application->addCommand(...)
+            : $this->application->add(...);
 
         foreach ($commands as $command) {
             if ($command instanceof Command) {
@@ -130,7 +140,7 @@ final class Console
                 $command->setEventDispatcher($this->dispatcher);
             }
 
-            $this->application->add($command);
+            $add($command);
         }
     }
 
@@ -156,17 +166,17 @@ final class Console
                 $inputStream = $input->getStream();
             }
 
-            if ($inputStream !== null && !@posix_isatty($inputStream) && false === getenv('SHELL_INTERACTIVE')) {
+            if ($inputStream !== null && !@\posix_isatty($inputStream) && \getenv('SHELL_INTERACTIVE') === false) {
                 $input->setInteractive(false);
             }
         }
 
-        match ($shellVerbosity = (int) getenv('SHELL_VERBOSITY')) {
+        match ($shellVerbosity = (int) \getenv('SHELL_VERBOSITY')) {
             -1 => $output->setVerbosity(OutputInterface::VERBOSITY_QUIET),
             1 => $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE),
             2 => $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE),
             3 => $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG),
-            default => $shellVerbosity = 0
+            default => $shellVerbosity = 0,
         };
 
         if ($input->hasParameterOption(['--quiet', '-q'], true)) {
@@ -176,14 +186,14 @@ final class Console
             if (
                 $input->hasParameterOption('-vvv', true)
                 || $input->hasParameterOption('--verbose=3', true)
-                || 3 === $input->getParameterOption('--verbose', false, true)
+                || $input->getParameterOption('--verbose', false, true) === 3
             ) {
                 $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
                 $shellVerbosity = 3;
             } elseif (
                 $input->hasParameterOption('-vv', true)
                 || $input->hasParameterOption('--verbose=2', true)
-                || 2 === $input->getParameterOption('--verbose', false, true)
+                || $input->getParameterOption('--verbose', false, true) === 2
             ) {
                 $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
                 $shellVerbosity = 2;
@@ -198,7 +208,7 @@ final class Console
             }
         }
 
-        if (-1 === $shellVerbosity) {
+        if ($shellVerbosity === -1) {
             $input->setInteractive(false);
         }
 

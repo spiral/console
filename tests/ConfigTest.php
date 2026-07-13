@@ -9,7 +9,7 @@ use Spiral\Console\Config\ConsoleConfig;
 use Spiral\Console\Exception\ConfigException;
 use Spiral\Console\Sequence\CallableSequence;
 
-class ConfigTest extends TestCase
+final class ConfigTest extends TestCase
 {
     public function testBadSequence(): void
     {
@@ -18,12 +18,12 @@ class ConfigTest extends TestCase
         $config = new ConsoleConfig([
             'sequences' => [
                 'update' => [
-                    []
+                    [],
                 ],
             ],
         ]);
 
-        iterator_to_array($config->updateSequence());
+        \iterator_to_array($config->updateSequence());
     }
 
     public function testForcedSequence(): void
@@ -36,6 +36,6 @@ class ConfigTest extends TestCase
             ],
         ]);
 
-        $this->assertCount(1, iterator_to_array($config->updateSequence()));
+        self::assertCount(1, \iterator_to_array($config->updateSequence()));
     }
 }
